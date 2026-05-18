@@ -13,14 +13,6 @@
   --bg-mushaf: #252529;
   --text-mushaf: #ffffff;
 }
-
-/* تطبيق المتغيرات على الكروت والنصوص */
-.card {
-  background: var(--bg-card) !important; /* هنا الإجبار عشان يغير الخلفية */
-  color: var(--text-color);
-  transition: background 0.3s ease, color 0.3s ease;
-}
-
 /* تلوين النصوص الداخلية للكروت عشان تقلب مع الدارك مود */
 .card h3, .card p, .card span, .sunnan-table, .doa-section, .sub-title {
   color: var(--text-color);
@@ -105,7 +97,8 @@ body {
 /* 3. تنسيق الكروت العام */
 /* تطبيق الخلفية المتغيرة على الكروت مع الحفاظ على تأثير الزجاج الشفاف الأصلي بتاعك */
 .card {
-  background: var(--bg-card) !important;
+  background: var(--bg-card) !important; /* تأكد إنها متعدلة هنا --bg-card */
+  color: var(--text-color) !important;   /* السطر ده تضمنه هنا عشان النصوص تقلب */
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-radius: 15px;
@@ -115,7 +108,6 @@ body {
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
   transition: background 0.3s ease, color 0.3s ease;
 }
-
 /* تطبيق لون النص المتغير على النصوص العادية جوه الكروت */
 .card h3, .card span, .card p, .sunnan-table, .doa-section {
   color: var(--text-color) !important;
