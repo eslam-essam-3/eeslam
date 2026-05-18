@@ -346,24 +346,26 @@ function loadAzkar(category) {
     // 1. تحديث شكل الزراير (اللون الأخضر)
     const tabs = document.querySelectorAll('.tab-btn');
     tabs.forEach(tab => tab.classList.remove('active'));
-    
+
     const activeBtn = document.querySelector(`button[onclick*="${category}"]`);
     if (activeBtn) activeBtn.classList.add('active');
 
-    // 2. تغيير القائمة بناءً على النوع اللي اخترته
+    // 2. تغيير القائمة بناءً على النوع اللي اخترته (ضيف السطر ده)
     if (category === 'sabah') {
         currentAzkarList = azkarData.sabah;
     } else if (category === 'masa') {
         currentAzkarList = azkarData.masa;
+    } else if (category === 'roqia') { // الخانة الجديدة هنا
+        currentAzkarList = azkarData.roqia;
     } else if (category === 'adya') {
         currentAzkarList = azkarData.adya;
     }
 
-    // 3. إعادة ضبط العدادات لعرض أول ذكر في القائمة الجديدة
-    zekrIndex = 0; 
-    zekrCounter = 0; // تصفير عداد التسبيح للذكر الجديد
-    
-    // 4. تشغيل الدالة اللي بتحدث النص على الشاشة (تأكد من اسمها عندك)
+    // 3. إعادة ضبط العدادات
+    zekrIndex = 0;
+    zekrCounter = 0; 
+
+    // 4. تشغيل الدالة اللي بتحدث النص على الشاشة
     updateZekrUI(); 
 }
 
