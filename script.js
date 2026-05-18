@@ -675,3 +675,45 @@ function initQuranAndJuz() {
 
 // تشغيل السكريبت مع تحميل الصفحة
 window.addEventListener('load', initQuranAndJuz);
+function playButtonFeedback() {
+  // 1. للأندرويد ومتصفحات الكمبيوتر الداعمة
+  if (navigator.vibrate) {
+    navigator.vibrate(15); 
+  } 
+  // 2. محاكاة اهتزاز هادي للآيفون (iOS) إذا تم فتح التطبيق كـ PWA من الشاشة الرئيسية
+  else if (window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches) {
+    try {
+      // إرسال نبضة صامتة تكتيكية قادرة على تحريك موتور الـ Taptic Engine في الآيفون
+      const context = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = context.createOscillator();
+      const gain = context.createGain();
+      osc.type = 'triangle';
+      oscosc.frequency.setValueAtTime(20, context.currentTime); // تردد منخفض جداً يهز الموتور
+      gain.gain.setValueAtTime(1, context.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.05);
+      osc.connect(gain);
+      gain.connect(context.destination);
+      osc.start();
+      osc.stop(context.currentTime + 0.05);
+    } catch(e) {}
+  }
+
+  // 3. صوت التكة النمطية الثابت لكل الأجهزة
+  try {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(1200, audioCtx.currentTime);
+    
+    gainNode.gain.setValueAtTime(0.04, audioCtx.currentTime); 
+    gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.04);
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    oscillator.start();
+    oscillator.stop(audioCtx.currentTime + 0.04);
+  } catch (e) {}
+}
