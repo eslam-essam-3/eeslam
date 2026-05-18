@@ -1,50 +1,3 @@
-/* الألوان الأساسية للموقع (الوضع الفاتح الافتراضي) */
-:root {
-  --bg-card: rgba(255, 255, 255, 0.85);
-  --text-color: #2c3e50;
-  --bg-mushaf: #fdfbf7;
-  --text-mushaf: #1a252f;
-}
-
-/* الألوان لما يشتغل الوضع الداكن */
-[data-theme="dark"] {
-  --bg-card: rgba(30, 30, 35, 0.95);
-  --text-color: #f1f2f6;
-  --bg-mushaf: #252529;
-  --text-mushaf: #ffffff;
-}
-/* تلوين النصوص الداخلية للكروت عشان تقلب مع الدارك مود */
-.card h3, .card p, .card span, .sunnan-table, .doa-section, .sub-title {
-  color: var(--text-color);
-}
-
-/* إجبار خط مواقيت الصلاة يفضل أبيض دايماً وواضح فوق الصور */
-.prayer-grid .card h3, 
-.prayer-grid .prayer-item, 
-.prayer-grid span, 
-.prayer-grid strong {
-  color: #ffffff !important;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
-}
-
-/* تنسيق صندوق المصحف الشريف الشفاف الذكي */
-#quran-container, .surah-text {
-  background-color: var(--bg-mushaf) !important;
-  color: var(--text-mushaf) !important;
-}
-/* ستايل الزرار نفسه عشان يظهر بشكل دائري متناسق */
-.btn-dark-mode {
-  padding: 6px 14px;
-  background-color: var(--bg-card);
-  color: var(--text-color);
-  border: 1px solid rgba(0,0,0,0.1);
-  border-radius: 20px;
-  cursor: pointer;
-  font-family: 'Cairo', sans-serif;
-  font-size: 14px;
-  margin-top: 10px;
-  transition: all 0.3s ease;
-}
 /* 1. الإعدادات العامة والمتغيرات */
 :root {
     --accent: #10b981;
@@ -95,61 +48,17 @@ body {
 }
 
 /* 3. تنسيق الكروت العام */
-/* تطبيق الخلفية المتغيرة على الكروت مع الحفاظ على تأثير الزجاج الشفاف الأصلي بتاعك */
 .card {
-  background: var(--bg-card) !important; /* تأكد إنها متعدلة هنا --bg-card */
-  color: var(--text-color) !important;   /* السطر ده تضمنه هنا عشان النصوص تقلب */
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-radius: 15px;
-  padding: 25px;
-  margin-bottom: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-  transition: background 0.3s ease, color 0.3s ease;
-}
-/* تطبيق لون النص المتغير على النصوص العادية جوه الكروت */
-.card h3, .card span, .card p, .sunnan-table, .doa-section {
-  color: var(--text-color) !important;
+    background: var(--card-bg) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 }
 
-/* حل مشكلة مواقيت الصلاة: الحفاظ على اللون الأبيض دائماً فوق صور الخلفيات */
-.prayer-grid .card, 
-.prayer-grid .prayer-item, 
-.prayer-grid span, 
-.prayer-grid strong {
-  color: #ffffff !important;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8) !important; /* ظل أسود خفيف عشان الكلام يبان بوضوح */
-}
-/* 1. تعريف الألوان الأساسية في أول الملف */
-:root {
-  --bg-card: rgba(255, 255, 255, 0.45); /* خلفية بيضاء شفافة جداً للمظهر الفاتح */
-  --text-color: #2c3e50; /* لون الخط الافتراضي */
-}
-
-[data-theme="dark"] {
-  --bg-card: rgba(20, 20, 25, 0.75); /* خلفية داكنة شفافة فخمة للمظهر الداكن */
-  --text-color: #f1f2f6; /* لون الخط هيقلب أبيض */
-}
-
-/* 2. تعديل كود الـ .card الرئيسي ليقبل التغيير الديناميكي */
-.card {
-  background: var(--bg-card) !important;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-radius: 15px;
-  padding: 25px;
-  margin-bottom: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
-  transition: background 0.3s ease;
-}
-
-/* 3. تطبيق لون النص على العناوين والنصوص داخل الكروت */
-.card h3, .card span, .card div, .card strong, .card p {
-  color: var(--text-color) !important;
-  transition: color 0.3s ease;
-}
 /* 4. مواقيت الصلاة والسنن */
 .prayer-grid, .sunnan-table {
     display: flex;

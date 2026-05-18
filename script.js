@@ -675,23 +675,3 @@ function initQuranAndJuz() {
 
 // تشغيل السكريبت مع تحميل الصفحة
 window.addEventListener('load', initQuranAndJuz);
-const darkModeToggle = document.getElementById('dark-mode-toggle');
-
-// التأكد من اختيار المستخدم القديم عند فتح التطبيق
-if (localStorage.getItem('theme') === 'dark') {
-  document.documentElement.setAttribute('data-theme', 'dark');
-  darkModeToggle.innerHTML = '☀️ المظهر الفاتح';
-}
-
-// تشغيل التبديل عند الضغط على الزرار
-darkModeToggle.addEventListener('click', () => {
-  if (document.documentElement.getAttribute('data-theme') === 'dark') {
-    document.documentElement.removeAttribute('data-theme');
-    darkModeToggle.innerHTML = '🌙 المظهر الداكن';
-    localStorage.setItem('theme', 'light');
-  } else {
-    document.documentElement.setAttribute('data-theme', 'dark');
-    darkModeToggle.innerHTML = '☀️ المظهر الفاتح';
-    localStorage.setItem('theme', 'dark');
-  }
-});
