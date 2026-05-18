@@ -1,72 +1,44 @@
-/* ==========================================
-   1. تعريف ألوان المظهرين (توضع أول الملف)
-   ========================================== */
+/* الألوان الأساسية للموقع (الوضع الفاتح الافتراضي) */
 :root {
-  --bg-card: rgba(255, 255, 255, 0.8) !important;
-  --text-color: #2c3e50 !important;
-  --bg-mushaf: #fdfbf7 !important;
-  --text-mushaf: #1a252f !important;
+  --bg-card: rgba(255, 255, 255, 0.85);
+  --text-color: #2c3e50;
+  --bg-mushaf: #fdfbf7;
+  --text-mushaf: #1a252f;
 }
 
+/* الألوان لما يشتغل الوضع الداكن */
 [data-theme="dark"] {
-  --bg-card: rgba(35, 35, 40, 0.9) !important;
-  --text-color: #f1f2f6 !important;
-  --bg-mushaf: #222225 !important;
-  --text-mushaf: #ffffff !important;
+  --bg-card: rgba(30, 30, 35, 0.95);
+  --text-color: #f1f2f6;
+  --bg-mushaf: #252529;
+  --text-mushaf: #ffffff;
 }
 
-/* ==========================================
-   2. زرار التبديل العايم (يظهر في الموبايل واللاب توب)
-   ========================================== */
-.floating-theme-btn {
-  position: fixed;
-  bottom: 20px;
-  left: 20px; /* هيظهر أسفل اليسار عشان ميتعارضش مع الكلام */
-  z-index: 9999;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background: var(--text-color);
-  color: var(--bg-mushaf);
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  font-size: 24px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-  transition: transform 0.2s ease, background 0.3s ease;
+/* تطبيق المتغيرات على الكروت والنصوص */
+.card {
+  background: var(--bg-card) !important; /* هنا الإجبار عشان يغير الخلفية */
+  color: var(--text-color);
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
-.floating-theme-btn:active {
-  transform: scale(0.9);
+/* تلوين النصوص الداخلية للكروت عشان تقلب مع الدارك مود */
+.card h3, .card p, .card span, .sunnan-table, .doa-section, .sub-title {
+  color: var(--text-color);
 }
 
-/* ==========================================
-   3. إجبار نصوص الكروت والمصحف والمواقيت على الوضوح
-   ========================================== */
-/* الكروت العادية */
-.card h3, .card p, .card span, .sunnan-table, .doa-section {
-  color: var(--text-color) !important;
-}
-
-/* كروت مواقيت الصلاة (تثبيت اللون الأبيض والخطوط الواضحة) */
+/* إجبار خط مواقيت الصلاة يفضل أبيض دايماً وواضح فوق الصور */
 .prayer-grid .card h3, 
 .prayer-grid .prayer-item, 
 .prayer-grid span, 
 .prayer-grid strong {
   color: #ffffff !important;
-  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.95) !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
 }
 
-/* المصحف الشريف (توضيح كامل ومنع السواد) */
-.quran-section, #quran-container, .surah-text {
+/* تنسيق صندوق المصحف الشريف الشفاف الذكي */
+#quran-container, .surah-text {
   background-color: var(--bg-mushaf) !important;
   color: var(--text-mushaf) !important;
-  padding: 25px;
-  border-radius: 12px;
-  line-height: 2.2 !important;
-  font-size: 1.4rem !important;
 }
 /* ستايل الزرار نفسه عشان يظهر بشكل دائري متناسق */
 .btn-dark-mode {
