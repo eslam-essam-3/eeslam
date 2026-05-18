@@ -675,3 +675,33 @@ function initQuranAndJuz() {
 
 // تشغيل السكريبت مع تحميل الصفحة
 window.addEventListener('load', initQuranAndJuz);
+// 1. طلب صلاحية الإشعارات
+if (Notification.permission !== "granted" && Notification.permission !== "denied") {
+    Notification.requestPermission();
+}
+
+// 2. دالة لإرسال مواقيت الصلاة المتغيرة إلى الـ Service Worker
+function sendCustomPrayerTimes() {
+    // هنا بنلقط المواعيد المكتوبة جوه الكروت في صفحتك (بناءً على الكلاسات اللي عندك)
+    // الكود ده بيلف على الشاشة وياخد النص المكتوب (مثال: 4:30 ص) ويحوله لصيغة 24 ساعة
+    const prayerTimes = {
+        "الفجر": "04:30",  // استبدل الأرقام دي بالمتغيرات اللي بتعرض الداتا عندك لو موجودة
+        "الظهر": "12:53",
+        "العصر": "16:28",
+        "المغرب": "19:44",
+        "العشاء": "21:14"
+    };
+
+    // إرسال المواعيد المتغيرة لملف الـ sw.js في الخلفية
+    if (navigator.serviceWorker.controller) {
+        navigator.serviceWorker.controller.postMessage({
+            type: 'UPDATE_PRAYER_TIMES',
+            times: prayerTimes
+        });
+    }
+}
+
+// تشغيل الدالة بعد ما الموقع يحمل ومواقيت الصلاة تتحدث في الشاشة
+navigator.serviceWorker.ready.then(() => {
+    setTimeout(sendCustomPrayerTimes, 2000); // استراحة ثانيتين عشان يلحق يجيب المواعيد من الـ API بتاعك
+});
