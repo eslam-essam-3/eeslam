@@ -1,0 +1,415 @@
+/* إعدادات تبديل الألوان الذكية بين المظهرين */
+:root {
+  --bg-card: rgba(255, 255, 255, 0.8) !important; /* خلفية الكروت الفاتحة الشفافة */
+  --text-color: #2c3e50 !important; /* لون النصوص العامة في الوضع الفاتح */
+  --bg-mushaf: #fdfbf7 !important; /* خلفية المصحف المريحة الفاتحة */
+  --text-mushaf: #1a252f !important; /* لون خط المصحف الواضح */
+}
+
+[data-theme="dark"] {
+  --bg-card: rgba(30, 30, 35, 0.9) !important; /* خلفية الكروت الداكنة الفخمة */
+  --text-color: #f1f2f6 !important; /* النصوص تقلب أبيض في الدارك */
+  --bg-mushaf: #252529 !important; /* خلفية المصحف الداكنة بالليل */
+  --text-mushaf: #ffffff !important; /* خط المصحف الأبيض المنور */
+}
+
+/* إجبار نصوص الكروت العادية على التبديل تلقائياً */
+.card h3, .card p, .card span, .sunnan-table, .doa-section {
+  color: var(--text-color) !important;
+}
+
+/* حل مشكلة مواقيت الصلاة: إجبار الخط يفضل أبيض واضح دايماً فوق صور المساجد */
+.prayer-grid .card h3, 
+.prayer-grid .prayer-item, 
+.prayer-grid span, 
+.prayer-grid strong {
+  color: #ffffff !important;
+  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.95) !important; /* ظل أسود قوي لزيادة الوضوح */
+}
+
+/* حل مشكلة المصحف الشريف: وضوح الآيات ومنع السواد التام */
+.quran-section, #quran-container, .surah-text {
+  background-color: var(--bg-mushaf) !important;
+  color: var(--text-mushaf) !important;
+  padding: 25px;
+  border-radius: 12px;
+  line-height: 2.2 !important;
+  font-size: 1.4rem !important;
+  transition: all 0.3s ease;
+}
+/* ستايل الزرار نفسه عشان يظهر بشكل دائري متناسق */
+.btn-dark-mode {
+  padding: 6px 14px;
+  background-color: var(--bg-card);
+  color: var(--text-color);
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 20px;
+  cursor: pointer;
+  font-family: 'Cairo', sans-serif;
+  font-size: 14px;
+  margin-top: 10px;
+  transition: all 0.3s ease;
+}
+/* 1. الإعدادات العامة والمتغيرات */
+:root {
+    --accent: #10b981;
+    --text: #ffffff;
+    --card-bg: rgba(0, 0, 0, 0.55); /* زدت التعتيم قليلاً لزيادة وضوح النصوص الطويلة */
+}
+
+body {
+    font-family: 'Cairo', sans-serif;
+    margin: 0;
+    padding: 20px;
+    direction: rtl;
+    color: var(--text);
+    min-height: 100vh;
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    body {
+    /* بدل transition: all 0.3s; */
+    transition: background-color 0.3s ease, color 0.3s ease, background-image 0.5s ease;
+}
+    background-color: #0f172a; 
+}
+
+/* 2. الهيدر وتنسيق الساعة */
+.main-header {
+    text-align: center;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.digital-clock {
+    font-size: clamp(2rem, 8vw, 3.5rem); /* حجم مرن ليناسب كل الشاشات */
+    color: #fff;
+    text-shadow: 0 0 20px var(--accent);
+    margin: 10px 0;
+    font-weight: bold;
+}
+
+.signature {
+    font-size: 0.9rem;
+    opacity: 0.7;
+    margin-top: 5px;
+}
+
+/* 3. تنسيق الكروت العام */
+/* تطبيق الخلفية المتغيرة على الكروت مع الحفاظ على تأثير الزجاج الشفاف الأصلي بتاعك */
+.card {
+  background: var(--bg-card) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 15px;
+  padding: 25px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* تطبيق لون النص المتغير على النصوص العادية جوه الكروت */
+.card h3, .card span, .card p, .sunnan-table, .doa-section {
+  color: var(--text-color) !important;
+}
+
+/* حل مشكلة مواقيت الصلاة: الحفاظ على اللون الأبيض دائماً فوق صور الخلفيات */
+.prayer-grid .card, 
+.prayer-grid .prayer-item, 
+.prayer-grid span, 
+.prayer-grid strong {
+  color: #ffffff !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8) !important; /* ظل أسود خفيف عشان الكلام يبان بوضوح */
+}
+/* 1. تعريف الألوان الأساسية في أول الملف */
+:root {
+  --bg-card: rgba(255, 255, 255, 0.45); /* خلفية بيضاء شفافة جداً للمظهر الفاتح */
+  --text-color: #2c3e50; /* لون الخط الافتراضي */
+}
+
+[data-theme="dark"] {
+  --bg-card: rgba(20, 20, 25, 0.75); /* خلفية داكنة شفافة فخمة للمظهر الداكن */
+  --text-color: #f1f2f6; /* لون الخط هيقلب أبيض */
+}
+
+/* 2. تعديل كود الـ .card الرئيسي ليقبل التغيير الديناميكي */
+.card {
+  background: var(--bg-card) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 15px;
+  padding: 25px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+  transition: background 0.3s ease;
+}
+
+/* 3. تطبيق لون النص على العناوين والنصوص داخل الكروت */
+.card h3, .card span, .card div, .card strong, .card p {
+  color: var(--text-color) !important;
+  transition: color 0.3s ease;
+}
+/* 4. مواقيت الصلاة والسنن */
+.prayer-grid, .sunnan-table {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.prayer-item, .sunna-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    border-right: 5px solid var(--accent);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.prayer-item:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateX(-8px);
+}
+
+.prayer-name { font-weight: bold; font-size: 1.1rem; color: #eee; }
+.prayer-time { font-weight: 700; color: var(--accent); font-size: 1.2rem; }
+
+/* 5. قسم الأدعية والأذكار - تم تعديله ليناسب النصوص الطويلة */
+.doa-section {
+    border-top: 4px solid var(--accent) !important;
+    text-align: center;
+}
+
+.doa-display, .azkar-box {
+    font-size: clamp(1.1rem, 4vw, 1.4rem);
+    line-height: 1.8;
+    padding: 25px;
+    min-height: 140px;
+    height: auto; /* لضمان عدم قص النص الطويل */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    margin-bottom: 15px;
+    text-align: center;
+    word-wrap: break-word; /* منع خروج الكلمات الطويلة عن الكرت */
+}
+
+/* تنسيق التبويبات للأذكار */
+.tabs {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+.tab-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 8px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: 'Cairo';
+    transition: 0.3s;
+}
+.tab-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+}
+
+.azkar-controls {
+    display: flex;
+    gap: 10px;
+}
+.btn-count, .btn-next {
+    flex: 1;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Cairo';
+    font-weight: bold;
+    transition: 0.3s;
+}
+.btn-count { background: #1e293b; color: white; border: 1px solid var(--accent); }
+.btn-next { background: var(--accent); color: white; }
+
+.btn-next-doa {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 12px 35px;
+    border-radius: 25px;
+    font-family: 'Cairo';
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+.btn-next-doa:hover {
+    background: #059669;
+    transform: translateY(-2px);
+}
+
+/* 6. المصحف الشريف */
+.quran-display {
+    background: rgba(0, 0, 0, 0.6) !important;
+    padding: 25px;
+    border-radius: 15px;
+    max-height: 500px;
+    overflow-y: auto;
+    font-size: clamp(1.3rem, 5vw, 1.8rem);
+    line-height: 2.5;
+    text-align: center;
+    direction: rtl;
+    color: #ffffff;
+    font-family: 'Cairo', sans-serif !important;
+    scroll-behavior: smooth;
+    
+    white-space: normal;
+    word-wrap: break-word;
+    letter-spacing: 0;
+    word-spacing: 2px;
+    text-rendering: optimizeLegibility;
+}
+
+/* سكرول بار أنيق للمصحف */
+.quran-display::-webkit-scrollbar { width: 6px; }
+.quran-display::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
+.quran-display::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
+
+.verse-num {
+    color: var(--accent);
+    font-weight: bold;
+    font-size: 1rem;
+    margin: 0 8px;
+    border: 1px solid var(--accent);
+    border-radius: 50%;
+    padding: 4px 8px;
+    display: inline-block;
+    line-height: 1;
+    background: rgba(16, 185, 129, 0.1);
+}
+
+/* 7. ضبط التجاوب للموبايل */
+@media (max-width: 600px) {
+    body { padding: 10px; }
+    .card { padding: 15px; }
+    .quran-display { font-size: 1.3rem; padding: 15px; line-height: 2; }
+    select { width: 96%; margin: 5px 2%; }
+    .prayer-item { padding: 12px 15px; }
+    .tabs { flex-wrap: wrap; }
+}
+
+/* 8. خلفيات الوقت */
+.bg-fajr { background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('fajr.jpg') !important; }
+.bg-dhuhr { background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)), url('dhuhr.jpg') !important; }
+.bg-asr { background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)), url('asr.jpg') !important; }
+.bg-maghrib { background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('maghrib.jpg') !important; }
+.bg-isha { background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('isha.jpg') !important; }
+.copy-btn {
+    background: rgba(34, 197, 94, 0.2); /* لون أخضر شفاف */
+    border: 1px solid #22c55e;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    cursor: pointer;
+    margin-bottom: 10px;
+    display: block;
+    width: fit-content;
+}
+
+.copy-btn:active {
+    transform: scale(0.95);
+}
+.prayer-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* هيعمل 3 أعمدة */
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.prayer-card {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 10px;
+    border-radius: 10px;
+    text-align: center;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.prayer-card span {
+    display: block;
+    font-size: 12px;
+    color: #ccc;
+}
+
+.prayer-card strong {
+    display: block;
+    font-size: 16px;
+    color: #22c55e;
+    margin-top: 5px;
+}
+.prayer-card {
+    background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('maghrib.jpg'); /* حطينا طبقة غامقة عشان الكلام يبان */
+    background-size: cover;
+    background-position: center;
+    padding: 15px;
+    border-radius: 12px;
+    text-align: center;
+    border: 1px solid rgba(34, 197, 94, 0.4);
+    color: white;
+}
+/* اللون الافتراضي للزراير */
+.tab-btn {
+    background-color: rgba(255, 255, 255, 0.1); /* لون هادي */
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+/* اللون لما الزرار يكون نشط (Active) */
+.tab-btn.active {
+    background-color: #22c55e !important; /* اللون الأخضر بتاعك */
+    border-color: #22c55e;
+    box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+}
+body.dark-mode {
+    background-color: #0f172a !important;
+    color: #ffffff;
+}
+body.dark-mode .card, body.dark-mode .prayer-card {
+    background: rgba(30, 41, 59, 0.9);
+    border-color: #334155;
+}
+/* تنسيق خاص لحل مشكلة الحروف المتفرقة في الآيفون وتجميل الخط */
+#quranContent {
+    font-family: 'Amiri Quran', 'Me Quran', 'Traditional Arabic', serif !important;
+    font-size: 24px !important;
+    line-height: 2.2 !important;
+    text-align: justify;
+    text-align-last: center;
+    direction: rtl;
+    padding: 15px;
+    /* حل مشكلة أجهزة أبل في معالجة النصوص العربية المشكلة */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+.verse-num {
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    color: #22c55e;
+    margin: 0 5px;
+    font-weight: bold;
+}
