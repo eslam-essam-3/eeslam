@@ -1,4 +1,3 @@
-alert("ملف الجافا سكريبت شغال تمام!");
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js')
@@ -674,46 +673,5 @@ function initQuranAndJuz() {
     };
 }
 
-// ==========================================
-// تشغيل الاهتزاز والصوت المباشر عند الضغط
-// ==========================================
-window.addEventListener('click', (e) => {
-  // التأكد إن الضغطة تمت على زرار (Button) أو أي عنصر جوه زرار
-  const button = e.target.closest('button');
-  if (!button) return;
-
-  // 1. الاهتزاز للهواتف الداعمة (أندرويد)
-  if (navigator.vibrate) {
-    navigator.vibrate(20);
-  }
-
-  // 2. تشغيل صوت التكة النمطية فوراً في نفس اللحظة (للتغلب على حظر المتصفحات)
-  try {
-    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-    if (AudioContextClass) {
-      const audioCtx = new AudioContextClass();
-      
-      // تفعيل الـ Context إذا كان واخد وضع الاستعداد (Suspended)
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
-
-      const oscillator = audioCtx.createOscillator();
-      const gainNode = audioCtx.createGain();
-
-      oscillator.type = 'sine';
-      oscillator.frequency.setValueAtTime(1000, audioCtx.currentTime); // حدة التكة
-      
-      gainNode.gain.setValueAtTime(0.08, audioCtx.currentTime); // علو الصوت
-      gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.03);
-
-      oscillator.connect(gainNode);
-      gainNode.connect(audioCtx.destination);
-
-      oscillator.start();
-      oscillator.stop(audioCtx.currentTime + 0.03);
-    }
-  } catch (err) {
-    console.log("Audio target blocked");
-  }
-});
+// تشغيل السكريبت مع تحميل الصفحة
+window.addEventListener('load', initQuranAndJuz);
