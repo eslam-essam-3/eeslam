@@ -673,47 +673,46 @@ function initQuranAndJuz() {
     };
 }
 
-// تشغيل السكريبت مع تحميل الصفحة
-window.addEventListener('load', initQuranAndJuz);
-function playButtonFeedback() {
-  // 1. للأندرويد ومتصفحات الكمبيوتر الداعمة
+// ==========================================
+// تشغيل الاهتزاز والصوت المباشر عند الضغط
+// ==========================================
+window.addEventListener('click', (e) => {
+  // التأكد إن الضغطة تمت على زرار (Button) أو أي عنصر جوه زرار
+  const button = e.target.closest('button');
+  if (!button) return;
+
+  // 1. الاهتزاز للهواتف الداعمة (أندرويد)
   if (navigator.vibrate) {
-    navigator.vibrate(15); 
-  } 
-  // 2. محاكاة اهتزاز هادي للآيفون (iOS) إذا تم فتح التطبيق كـ PWA من الشاشة الرئيسية
-  else if (window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches) {
-    try {
-      // إرسال نبضة صامتة تكتيكية قادرة على تحريك موتور الـ Taptic Engine في الآيفون
-      const context = new (window.AudioContext || window.webkitAudioContext)();
-      const osc = context.createOscillator();
-      const gain = context.createGain();
-      osc.type = 'triangle';
-      oscosc.frequency.setValueAtTime(20, context.currentTime); // تردد منخفض جداً يهز الموتور
-      gain.gain.setValueAtTime(1, context.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.05);
-      osc.connect(gain);
-      gain.connect(context.destination);
-      osc.start();
-      osc.stop(context.currentTime + 0.05);
-    } catch(e) {}
+    navigator.vibrate(20);
   }
 
-  // 3. صوت التكة النمطية الثابت لكل الأجهزة
+  // 2. تشغيل صوت التكة النمطية فوراً في نفس اللحظة (للتغلب على حظر المتصفحات)
   try {
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const oscillator = audioCtx.createOscillator();
-    const gainNode = audioCtx.createGain();
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (AudioContextClass) {
+      const audioCtx = new AudioContextClass();
+      
+      // تفعيل الـ Context إذا كان واخد وضع الاستعداد (Suspended)
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
 
-    oscillator.type = 'sine';
-    oscillator.frequency.setValueAtTime(1200, audioCtx.currentTime);
-    
-    gainNode.gain.setValueAtTime(0.04, audioCtx.currentTime); 
-    gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.04);
+      const oscillator = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
 
-    oscillator.connect(gainNode);
-    gainNode.connect(audioCtx.destination);
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(1000, audioCtx.currentTime); // حدة التكة
+      
+      gainNode.gain.setValueAtTime(0.08, audioCtx.currentTime); // علو الصوت
+      gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.03);
 
-    oscillator.start();
-    oscillator.stop(audioCtx.currentTime + 0.04);
-  } catch (e) {}
-}
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+
+      oscillator.start();
+      oscillator.stop(audioCtx.currentTime + 0.03);
+    }
+  } catch (err) {
+    console.log("Audio target blocked");
+  }
+});
