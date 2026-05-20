@@ -163,7 +163,32 @@ window.onload = () => {
     updateZekrUI();
     }
 };
-
+async function shareZekr() {
+    const zekrText = document.getElementById('zekr-text').innerText;
+    if (navigator.share) {
+        try {
+            await navigator.share({
+                title: 'أذكار المسلم',
+                text: `${zekrText}\n\nتمت المشاركة من تطبيق أذكار المسلم - تصميم إسلام عصام`,
+                url: window.location.href
+            });
+        } catch (err) { console.log(err); }
+    } else {
+        navigator.clipboard.writeText(zekrText);
+        alert("تم نسخ الذكر بنجاح!");
+    }
+}
+function setKhatmaPlan(days) {
+    const pagesPerDay = Math.ceil(604 / days);
+    const msg = `عشان تختم في ${days} يوم، اقرأ ${pagesPerDay} صفحات يومياً (حوالي ${Math.ceil(pagesPerDay/5)} صفحات بعد كل صلاة).`;
+    
+    // إحنا بنعرض الرسالة مكان "اختر لبدء القراءة"
+    const quranContent = document.getElementById('quranContent');
+    if (quranContent) {
+        quranContent.innerText = msg;
+        quranContent.style.color = "var(--accent)"; // هيخلي لون الكلام أخضر زي تصميمك
+    }
+}
 // --- 2. وظيفة تحديث واجهة الذكر (عشان الفصل) ---
 function updateZekrUI() {
     const currentZekr = currentAzkarList[zekrIndex];
@@ -784,5 +809,48 @@ function checkPrayerNotifications() {
         if (diff > 4.5 && diff <= 5.5) {
             sendNotification("تذكير بالصلاة", `باقي 5 دقائق على أذان ${prayer}.. استعد للصلاة يا بطل`);
         }
+    }
+}
+// دالة الحساب
+function calculateKhatma(days) {
+    const totalPages = 604; 
+    const pagesPerDay = Math.ceil(totalPages / days);
+    const pagesPerPrayer = Math.ceil(pagesPerDay / 5);
+    
+    return {
+        daily: pagesPerDay,
+        perPrayer: pagesPerPrayer,
+        days: days
+    };
+}
+
+// دالة العرض (دي اللي هتناديها من الزراير)
+function showKhatmaPlan(days) {
+    const plan = calculateKhatma(days);
+    const planText = `عشان تختم في ${plan.days} يوم، محتاج تقرأ ${plan.daily} صفحات يومياً، يعني حوالي ${plan.perPrayer} صفحات بعد كل صلاة.`;
+    
+    // إحنا هنستخدم doaDisplayElement اللي إنت معرفه في سطر 122
+    if (doaDisplayElement) {
+        doaDisplayElement.innerText = planText;
+        // حركة شياكة: يخلي الشاشة تطلع لفوق عند الكلام لو الموبايل شاشته صغيرة
+        doaDisplayElement.scrollIntoView({ behavior: 'smooth' });
+    }
+}
+function showKhatmaPlanFree() {
+    const daysInput = document.getElementById('khatmaDays');
+    const days = parseInt(daysInput.value);
+
+    if (isNaN(days) || days <= 0) {
+        alert("يا ريت تكتب عدد أيام مظبوط يا بطل");
+        return;
+    }
+
+    const plan = calculateKhatma(days);
+    const planText = `عشان تختم في ${days} يوم، محتاج تقرأ ${plan.daily} صفحات يومياً، يعني حوالي ${plan.perPrayer} صفحات بعد كل صلاة.`;
+    
+    // العرض في المكان اللي اتفقنا عليه
+    if (doaDisplayElement) {
+        doaDisplayElement.innerText = planText;
+        doaDisplayElement.scrollIntoView({ behavior: 'smooth' });
     }
 }
