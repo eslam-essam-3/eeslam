@@ -144,6 +144,7 @@ window.onload = () => {
     if ("Notification" in window) {
         Notification.requestPermission();
     // تصفير العداد أول ما يفتح الموقع من جديد 
+    localStorage.clear();
     zekrCounter = 0; 
     
     // تحديث الرقم اللي ظاهر على الزرار لصفر 
