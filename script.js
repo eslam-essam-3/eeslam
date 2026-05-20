@@ -858,7 +858,7 @@ function confirmKhatmaPlan() {
     localStorage.setItem('userKhatma', JSON.stringify(khatmaData));
     displayCurrentDayPlan(); // اظهر الورد فوراً بعد التأكيد
 }
-// 1. دالة عرض الورد وجلبه من المصحف
+// 1. دالة عرض خطة الختمة (المحدثة)
 function displayCurrentDayPlan() {
     const savedData = localStorage.getItem('userKhatma');
     const resultElement = document.getElementById('khatma-result');
@@ -866,48 +866,62 @@ function displayCurrentDayPlan() {
     if (savedData && resultElement) {
         const data = JSON.parse(savedData);
         
-        // حساب الصفحة اللي هيبدأ منها والصفحة اللي هيخلص عندها
+        // حساب الصفحات
         const startPage = (data.currentDay - 1) * data.pagesPerDay + 1;
         let endPage = data.currentDay * data.pagesPerDay;
         if (endPage > 604) endPage = 604;
 
-        // تحديد الجزء المناسب لعرضه (بناءً على صفحة البداية)
+        // حساب الجزء (كل جزء 20 صفحة)
         const currentJuz = Math.ceil(startPage / 20);
 
         resultElement.innerHTML = `
             <div style="background: rgba(var(--accent-rgb), 0.1); padding: 15px; border-radius: 12px; border: 1px solid var(--accent); margin-top:20px; text-align: center;">
                 <h3 style="color: var(--accent); margin-bottom: 10px;">ورد اليوم (${data.currentDay} من ${data.totalDays})</h3>
-                <p style="margin-bottom: 15px; font-size: 0.95rem;">مطلوب منك اليوم قراءة <b>${data.pagesPerDay} صفحات</b> تقريباً.</p>
+                <p style="margin-bottom: 15px;">من صفحة <b>${startPage}</b> إلى <b>${endPage}</b></p>
                 
-                <button class="btn-next" onclick="loadKhatmaVerses(${currentJuz}, ${startPage}, ${endPage})" style="background: var(--accent); color: #000; font-weight: bold; width: 100%; margin-bottom: 10px;">
-                    📖 عرض ورد اليوم من المصحف
+                <button class="btn-next" onclick="goToKhatmaJuz(${currentJuz})" style="background: var(--accent); color: #000; width: 100%; margin-bottom: 10px; cursor: pointer;">
+                    📖 افتح الورد في المصحف
                 </button>
                 
-                <button onclick="markDayAsDone()" style="background: none; border: 1px solid #555; color: #ccc; padding: 5px 10px; border-radius: 5px; font-size: 0.8rem; cursor: pointer;">
-                    تمت القراءة.. انتقل لليوم التالي ✅
+                <button class="btn-next" onclick="markNextDay()" style="background: none; border: 1px solid #555; color: #ccc; width: 100%; cursor: pointer;">
+                    انتقال لليوم التالي (${data.currentDay + 1}) ✅
                 </button>
             </div>
         `;
     }
 }
 
-// 2. دالة جلب الآيات وعرضها (بتستخدم الـ API أو الملفات اللي عندك)
-function loadKhatmaVerses(juz, start, end) {
-    // أولاً: هنخلي القائمة تختار الجزء المظبوط أوتوماتيك
+// 2. دالة الانتقال لليوم التالي (تصليح العطل)
+function markNextDay() {
+    let savedData = localStorage.getItem('userKhatma');
+    if (savedData) {
+        let data = JSON.parse(savedData);
+        if (data.currentDay < data.totalDays) {
+            data.currentDay += 1; // زيادة اليوم
+            localStorage.setItem('userKhatma', JSON.stringify(data)); // حفظ التعديل
+            displayCurrentDayPlan(); // تحديث الواجهة فوراً
+        } else {
+            alert("ألف مبروك.. ختمت المصحف! 🎉");
+            localStorage.removeItem('userKhatma');
+            location.reload();
+        }
+    }
+}
+
+// 3. دالة فتح الجزء المخصص للورد (تصليح فتح المصحف من الأول)
+function goToKhatmaJuz(juzNum) {
     const juzSelect = document.getElementById('juzSelect');
     if (juzSelect) {
-        juzSelect.value = juz;
-        // إطلاق حدث التغيير عشان نظام العرض بتاعك يشتغل
+        juzSelect.value = juzNum; // اختيار الجزء في القائمة
+        
+        // تشغيل دالة العرض الأصلية اللي عندك في الكود (initQuranAndJuz أو مشابه)
+        // بنعمل Dispatch لحدث change عشان الـ listener يلقطه
         juzSelect.dispatchEvent(new Event('change')); 
         
-        // ثانياً: النزول لمكان عرض القرآن بسلاسة
-        const quranDisplay = document.getElementById('quranContent');
-        if (quranDisplay) {
-            quranDisplay.scrollIntoView({ behavior: 'smooth' });
-            // هنا بنضيف لمسة جمالية: بننبه المستخدم إنه يبدأ من صفحة كذا
-            setTimeout(() => {
-                alert("تقبل الله منك.. ابدأ القراءة من صفحة " + start);
-            }, 800);
+        // النزول لمكان القرآن
+        const quranBox = document.getElementById('quranContent');
+        if (quranBox) {
+            quranBox.scrollIntoView({ behavior: 'smooth' });
         }
     }
 }
