@@ -841,15 +841,15 @@ function showKhatmaPlanFree() {
     const days = parseInt(daysInput.value);
 
     if (isNaN(days) || days <= 0) {
-        alert("يا ريت تكتب عدد أيام مظبوط يا بطل");
+        alert("يا ريت تكتب عدد أيام مظبوط");
         return;
     }
 
     const plan = calculateKhatma(days);
     const planText = `عشان تختم في ${days} يوم، محتاج تقرأ ${plan.daily} صفحات يومياً، يعني حوالي ${plan.perPrayer} صفحات بعد كل صلاة.`;
     
-    // العرض في المكان اللي اتفقنا عليه
-   const resultElement = document.getElementById('quranContent');
+    // التعديل هنا: هنعرض النتيجة في المكان الجديد بدل doaDisplayElement
+    const resultElement = document.getElementById('khatma-result');
     if (resultElement) {
         resultElement.innerText = planText;
         resultElement.scrollIntoView({ behavior: 'smooth' });
