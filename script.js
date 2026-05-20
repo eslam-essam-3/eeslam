@@ -138,11 +138,17 @@ window.onload = () => {
     updateDoaUI();
 
     if (localStorage.getItem('theme') === 'dark') {
-        document.body.classList.add('dark-mode');
+    document.body.classList.add('dark-mode');
     }
 
     if ("Notification" in window) {
-        Notification.requestPermission();
+    Notification.requestPermission();
+    // طلب إذن الإشعارات أول ما يفتح التطبيق
+    if ("Notification" in window) {
+    Notification.requestPermission();
+    }
+    // تشغيل فحص مواقيت الصلاة كل دقيقة
+    setInterval(checkPrayerNotifications, 60000);
     // تصفير العداد أول ما يفتح الموقع من جديد 
     localStorage.clear();
     zekrCounter = 0; 
@@ -752,3 +758,31 @@ function sendCustomPrayerTimes() {
 navigator.serviceWorker.ready.then(() => {
     setTimeout(sendCustomPrayerTimes, 2000); // استراحة ثانيتين عشان يلحق يجيب المواعيد من الـ API بتاعك
 });
+function checkPrayerNotifications() {
+    const now = new Date();
+    
+    // إحنا هنا بنستخدم البيانات اللي بتيجي من دالة updatePrayers عندك
+    // لو افترضنا إن المواعيد متخزنة في مصفوفة اسمها prayerTimes
+    if (typeof prayerTimes === 'undefined') return;
+
+    for (let prayer in prayerTimes) {
+        const [time, modifier] = prayerTimes[prayer].split(' ');
+        let [hours, minutes] = time.split(':');
+        hours = parseInt(hours);
+        minutes = parseInt(minutes);
+
+        // تحويل نظام 12 ساعة لنظام 24 ساعة عشان الحسابات
+        if (modifier === 'PM' && hours < 12) hours += 12;
+        if (modifier === 'AM' && hours === 12) hours = 0;
+
+        const prayerDate = new Date();
+        prayerDate.setHours(hours, minutes, 0);
+
+        const diff = (prayerDate - now) / (1000 * 60);
+
+        // التنبيه قبل المعاد بـ 5 دقائق (بين 4.5 و 5.5 دقيقة)
+        if (diff > 4.5 && diff <= 5.5) {
+            sendNotification("تذكير بالصلاة", `باقي 5 دقائق على أذان ${prayer}.. استعد للصلاة يا بطل`);
+        }
+    }
+}
