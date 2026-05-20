@@ -830,12 +830,12 @@ function showKhatmaPlan(days) {
     const planText = `عشان تختم في ${plan.days} يوم، محتاج تقرأ ${plan.daily} صفحات يومياً، يعني حوالي ${plan.perPrayer} صفحات بعد كل صلاة.`;
     
     // إحنا هنستخدم doaDisplayElement اللي إنت معرفه في سطر 122
-    if (doaDisplayElement) {
-        doaDisplayElement.innerText = planText;
-        // حركة شياكة: يخلي الشاشة تطلع لفوق عند الكلام لو الموبايل شاشته صغيرة
-        doaDisplayElement.scrollIntoView({ behavior: 'smooth' });
+   const resultElement = document.getElementById('quranContent'); // هنعرضها مكان "اختر لبدء القراءة"
+    if (resultElement) {
+        resultElement.innerText = planText;
+        resultElement.scrollIntoView({ behavior: 'smooth' });
     }
-}
+    }
 function showKhatmaPlanFree() {
     const daysInput = document.getElementById('khatmaDays');
     const days = parseInt(daysInput.value);
@@ -849,8 +849,9 @@ function showKhatmaPlanFree() {
     const planText = `عشان تختم في ${days} يوم، محتاج تقرأ ${plan.daily} صفحات يومياً، يعني حوالي ${plan.perPrayer} صفحات بعد كل صلاة.`;
     
     // العرض في المكان اللي اتفقنا عليه
-    if (doaDisplayElement) {
-        doaDisplayElement.innerText = planText;
-        doaDisplayElement.scrollIntoView({ behavior: 'smooth' });
+   const resultElement = document.getElementById('quranContent');
+    if (resultElement) {
+        resultElement.innerText = planText;
+        resultElement.scrollIntoView({ behavior: 'smooth' });
     }
 }
