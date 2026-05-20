@@ -152,7 +152,8 @@ window.onload = () => {
     // تصفير العداد أول ما يفتح الموقع من جديد 
     localStorage.clear();
     zekrCounter = 0; 
-    
+    // حط السطر ده في نهاية window.onload
+    displayCurrentDayPlan();
     // تحديث الرقم اللي ظاهر على الزرار لصفر 
     if (countBtnElement) {
         // يفضل تخليها '0 تسبيح' عشان تماشي شكل التصميم بتاعك //
@@ -836,22 +837,63 @@ function showKhatmaPlan(days) {
         resultElement.scrollIntoView({ behavior: 'smooth' });
     }
     }
-function showKhatmaPlanFree() {
+// 1. دالة حساب الخطة وتخزينها
+function confirmKhatmaPlan() {
     const daysInput = document.getElementById('khatmaDays');
     const days = parseInt(daysInput.value);
 
     if (isNaN(days) || days <= 0) {
-        alert("يا ريت تكتب عدد أيام مظبوط");
+        alert("يا ريت تكتب عدد أيام مظبوط يا بطل");
         return;
     }
 
-    const plan = calculateKhatma(days);
-    const planText = `عشان تختم في ${days} يوم، محتاج تقرأ ${plan.daily} صفحات يومياً، يعني حوالي ${plan.perPrayer} صفحات بعد كل صلاة.`;
+    const totalPages = 604;
+    const pagesPerDay = Math.ceil(totalPages / days);
     
-    // التعديل هنا: هنعرض النتيجة في المكان الجديد بدل doaDisplayElement
-    const resultElement = document.getElementById('khatma-result');
-    if (resultElement) {
-        resultElement.innerText = planText;
-        resultElement.scrollIntoView({ behavior: 'smooth' });
+    const khatmaData = {
+        totalDays: days,
+        pagesPerDay: pagesPerDay,
+        currentDay: 1 
+    };
+
+    localStorage.setItem('userKhatma', JSON.stringify(khatmaData));
+    displayCurrentDayPlan(); // اظهر الورد فوراً بعد التأكيد
+}
+
+// 2. دالة عرض ورد اليوم الحالي (اللي ناديتها في سطر 156)
+function displayCurrentDayPlan() {
+    const savedData = localStorage.getItem('userKhatma');
+    const resultElement = document.getElementById('khatma-result'); // تأكد إن الـ ID ده موجود في HTML
+    
+    if (savedData && resultElement) {
+        const data = JSON.parse(savedData);
+        
+        const startPage = (data.currentDay - 1) * data.pagesPerDay + 1;
+        let endPage = data.currentDay * data.pagesPerDay;
+        if (endPage > 604) endPage = 604;
+
+        resultElement.innerHTML = `
+            <div style="background: rgba(var(--accent-rgb), 0.1); padding: 15px; border-radius: 10px; border: 1px solid var(--accent); margin-top:15px;">
+                <h4 style="color: var(--accent);">ورد اليوم (${data.currentDay} من ${data.totalDays})</h4>
+                <p>من صفحة <b>${startPage}</b> إلى <b>${endPage}</b></p>
+                <button class="btn-next" onclick="markDayAsDone()" style="margin-top: 10px;">خلصت ورد النهاردة ✅</button>
+            </div>
+        `;
+    }
+}
+
+// 3. دالة تحديث اليوم لما يدوس على الزرار
+function markDayAsDone() {
+    let savedData = JSON.parse(localStorage.getItem('userKhatma'));
+    if (savedData) {
+        if (savedData.currentDay < savedData.totalDays) {
+            savedData.currentDay += 1;
+            localStorage.setItem('userKhatma', JSON.stringify(savedData));
+            displayCurrentDayPlan();
+        } else {
+            alert("ألف مبروك.. ختمت المصحف! 🎉");
+            localStorage.removeItem('userKhatma');
+            location.reload();
+        }
     }
 }
