@@ -925,45 +925,105 @@ function goToKhatmaJuz(juzNum) {
         }
     }
 }
-// 1. دالة الانتقال للورد وعرض آياته فقط
+// 1. دالة حساب الخطة وتخزينها (بدون localStorage.clear)
+function confirmKhatmaPlan() {
+    const daysInput = document.getElementById('khatmaDays');
+    const days = parseInt(daysInput.value);
+
+    if (isNaN(days) || days <= 0) {
+        alert("يا ريت تكتب عدد أيام مظبوط يا بطل!");
+        return;
+    }
+
+    const totalPages = 604;
+    const pagesPerDay = Math.ceil(totalPages / days);
+
+    const khatmaData = {
+        totalDays: days,
+        pagesPerDay: pagesPerDay,
+        currentDay: 1
+    };
+
+    localStorage.setItem('userKhatma', JSON.stringify(khatmaData));
+    displayCurrentDayPlan(); 
+}
+
+// 2. دالة عرض ورد اليوم الحالي (بتظهر الزرار اللي بيفتح المصحف)
+function displayCurrentDayPlan() {
+    const savedData = localStorage.getItem('userKhatma');
+    const resultElement = document.getElementById('khatma-result');
+
+    if (savedData && resultElement) {
+        const data = JSON.parse(savedData);
+        const startPage = (data.currentDay - 1) * data.pagesPerDay + 1;
+        let endPage = data.currentDay * data.pagesPerDay;
+        if (endPage > 604) endPage = 604;
+
+        resultElement.innerHTML = `
+            <div style="background: rgba(var(--accent-rgb), 0.1); padding: 15px; border-radius: 12px; border: 1px solid var(--accent); margin-top:20px; text-align: center;">
+                <h3 style="color: var(--accent); margin-bottom: 10px;">ورد اليوم (${data.currentDay} من ${data.totalDays})</h3>
+                <p>من صفحة <b>${startPage}</b> إلى <b>${endPage}</b></p>
+                
+                <button class="btn-next" onclick="goToKhatmaPages(${startPage}, ${endPage})" style="background: var(--accent); color: #000; width: 100%; margin-bottom: 10px; font-weight:bold; cursor:pointer;">
+                    📖 اقرأ ورد اليوم الآن
+                </button>
+                
+                <button class="btn-next" onclick="markNextDay()" style="background: none; border: 1px solid #555; color: #ccc; width: 100%; cursor:pointer;">
+                    خلصت الورد.. اليوم التالي ✅
+                </button>
+            </div>
+        `;
+    }
+}
+
+// 3. دالة جلب الآيات وعرضها "صفحة صفحة"
 async function goToKhatmaPages(startPage, endPage) {
-    const quranDisplay = document.getElementById('quranContent');
+    const quranDisplay = document.getElementById('quranContent'); 
     if (!quranDisplay) return;
 
-    quranDisplay.innerHTML = '<p style="text-align:center; color:var(--accent);">جاري جلب وردك المبارك...</p>';
+    quranDisplay.innerHTML = '<p style="text-align:center; color:var(--accent);">جاري ترتيب صفحات وردك...</p>';
     
     try {
-        // جرب تغير الاسم هنا حسب اسم ملفك الحقيقي (json أو js)
         const response = await fetch('quran-data.json'); 
-        const data = await response.json();
-        
-        // لو البيانات جوه Object اسمه verses مثلاً، اتأكد من المسار
-        const allVerses = Array.isArray(data) ? data : data.verses;
-
+        const allVerses = await response.json();
         const khatmaVerses = allVerses.filter(v => v.page >= startPage && v.page <= endPage);
 
         if (khatmaVerses.length > 0) {
-            let html = `<div style="text-align:center; margin-bottom:20px;">
-                            <h2 style="color:var(--accent);">ورد اليوم</h2>
-                            <p style="font-size:0.8rem; color:#888;">من صفحة ${startPage} إلى ${endPage}</p>
+            let html = "";
+            for (let p = startPage; p <= endPage; p++) {
+                const pageVerses = khatmaVerses.filter(v => v.page === p);
+                if (pageVerses.length > 0) {
+                    html += `
+                        <div class="page-block" style="border: 1px solid #333; padding: 20px; margin-bottom: 20px; border-radius: 10px; background: rgba(255,255,255,0.02); direction:rtl;">
+                            <div style="text-align:center; font-size: 0.8rem; color: var(--accent); margin-bottom: 10px; border-bottom: 1px solid #444; padding-bottom: 5px;">📄 صفحة ${p}</div>
+                            <div style="font-size:1.6rem; line-height:2.5; text-align:justify;">
+                                ${pageVerses.map(v => `${v.text} <span style="color:var(--accent); font-size:1.1rem;">(${v.verse_number})</span>`).join(' ')}
+                            </div>
                         </div>`;
-            
-            // تجميع الآيات في شكل نصي مريح للعين
-            html += `<div class="quran-text" style="direction:rtl; line-height:2.5; font-size:1.5rem; text-align:justify; padding:15px;">`;
-            
-            khatmaVerses.forEach(v => {
-                html += `${v.text} <span style="color:var(--accent); font-size:1rem;">(${v.verse_number})</span> `;
-            });
-
-            html += `</div>`;
-            
+                }
+            }
             quranDisplay.innerHTML = html;
             quranDisplay.scrollIntoView({ behavior: 'smooth' });
-        } else {
-            quranDisplay.innerHTML = '<p style="text-align:center;">لم يتم العثور على آيات لهذه الصفحات.</p>';
         }
     } catch (error) {
-        console.error("Error:", error);
-        quranDisplay.innerHTML = '<p style="text-align:center; color:red;">تأكد من رفع ملف quran-data.json على السيرفر (GitHub) ليعمل الجلب.</p>';
+        quranDisplay.innerHTML = '<p style="color:red; text-align:center;">ارفع ملف quran-data.json على GitHub</p>';
+    }
+}
+
+// 4. دالة الانتقال لليوم التالي وحفظ التقدم
+function markNextDay() {
+    let savedData = localStorage.getItem('userKhatma');
+    if (savedData) {
+        let data = JSON.parse(savedData);
+        if (data.currentDay < data.totalDays) {
+            data.currentDay += 1;
+            localStorage.setItem('userKhatma', JSON.stringify(data));
+            displayCurrentDayPlan();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+            alert("ما شاء الله! ختمت المصحف بنجاح 🎉");
+            localStorage.removeItem('userKhatma');
+            location.reload();
+        }
     }
 }
