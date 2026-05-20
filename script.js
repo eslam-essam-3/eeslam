@@ -143,15 +143,16 @@ window.onload = () => {
 
     if ("Notification" in window) {
         Notification.requestPermission();
-    // تصفير العداد أول ما يفتح الموقع من جديد
+    // تصفير العداد أول ما يفتح الموقع من جديد 
     zekrCounter = 0; 
     
-    // تحديث الرقم اللي ظاهر على الزرار لصفر
+    // تحديث الرقم اللي ظاهر على الزرار لصفر 
     if (countBtnElement) {
-        countBtnElement.innerText = '0'; 
+        // يفضل تخليها '0 تسبيح' عشان تماشي شكل التصميم بتاعك //
+        countBtnElement.innerText = '0 تسبيح'; 
     }
     
-    // تحديث الواجهة عشان كل حاجة تصفر
+    // أهم سطر: تحديث الواجهة عشان الصفر يظهر فوراً
     updateZekrUI();
     }
 };
