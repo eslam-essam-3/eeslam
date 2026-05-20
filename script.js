@@ -150,7 +150,6 @@ window.onload = () => {
     // تشغيل فحص مواقيت الصلاة كل دقيقة
     setInterval(checkPrayerNotifications, 60000);
     // تصفير العداد أول ما يفتح الموقع من جديد 
-    localStorage.clear();
     zekrCounter = 0; 
     // حط السطر ده في نهاية window.onload
     displayCurrentDayPlan();
@@ -863,7 +862,7 @@ function confirmKhatmaPlan() {
 // 2. دالة عرض ورد اليوم الحالي (اللي ناديتها في سطر 156)
 function displayCurrentDayPlan() {
     const savedData = localStorage.getItem('userKhatma');
-    const resultElement = document.getElementById('khatma-result'); // تأكد إن الـ ID ده موجود في HTML
+    const resultElement = document.getElementById('khatma-result');
     
     if (savedData && resultElement) {
         const data = JSON.parse(savedData);
