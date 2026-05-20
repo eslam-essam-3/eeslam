@@ -930,67 +930,40 @@ async function goToKhatmaPages(startPage, endPage) {
     const quranDisplay = document.getElementById('quranContent');
     if (!quranDisplay) return;
 
-    // إظهار رسالة تحميل
-    quranDisplay.innerHTML = '<p style="text-align:center;">جاري تحميل وردك المبارك...</p>';
+    quranDisplay.innerHTML = '<p style="text-align:center; color:var(--accent);">جاري جلب وردك المبارك...</p>';
     
     try {
-        // نستخدم نفس ملف البيانات اللي إنت بتستعمله في سطر 131
+        // جرب تغير الاسم هنا حسب اسم ملفك الحقيقي (json أو js)
         const response = await fetch('quran-data.json'); 
-        const quranData = await response.json();
+        const data = await response.json();
+        
+        // لو البيانات جوه Object اسمه verses مثلاً، اتأكد من المسار
+        const allVerses = Array.isArray(data) ? data : data.verses;
 
-        // فلترة الآيات: هنجيب بس الآيات اللي رقم صفحتها بين البداية والنهاية
-        const khatmaVerses = quranData.filter(v => v.page >= startPage && v.page <= endPage);
+        const khatmaVerses = allVerses.filter(v => v.page >= startPage && v.page <= endPage);
 
         if (khatmaVerses.length > 0) {
-            let html = `<div style="text-align:center; color:var(--accent); margin-bottom:15px;">
-                            <h3>بداية الورد من صفحة ${startPage}</h3>
-                            <hr style="border:0; border-top:1px solid #333;">
+            let html = `<div style="text-align:center; margin-bottom:20px;">
+                            <h2 style="color:var(--accent);">ورد اليوم</h2>
+                            <p style="font-size:0.8rem; color:#888;">من صفحة ${startPage} إلى ${endPage}</p>
                         </div>`;
             
-            khatmaVerses.forEach(verse => {
-                html += `
-                    <div class="verse-item" style="padding:10px; border-bottom:1px solid #222; direction:rtl;">
-                        <span class="verse-text" style="font-size:1.3rem; line-height:2.5;">
-                            ${verse.text} <span style="color:var(--accent); font-weight:bold;">(${verse.verse_number})</span>
-                        </span>
-                        <div style="font-size:0.8rem; color:#888;">سورة ${verse.surah_name} | صفحة ${verse.page}</div>
-                    </div>
-                `;
+            // تجميع الآيات في شكل نصي مريح للعين
+            html += `<div class="quran-text" style="direction:rtl; line-height:2.5; font-size:1.5rem; text-align:justify; padding:15px;">`;
+            
+            khatmaVerses.forEach(v => {
+                html += `${v.text} <span style="color:var(--accent); font-size:1rem;">(${v.verse_number})</span> `;
             });
 
+            html += `</div>`;
+            
             quranDisplay.innerHTML = html;
             quranDisplay.scrollIntoView({ behavior: 'smooth' });
+        } else {
+            quranDisplay.innerHTML = '<p style="text-align:center;">لم يتم العثور على آيات لهذه الصفحات.</p>';
         }
     } catch (error) {
-        console.error("خطأ في تحميل الورد:", error);
-        quranDisplay.innerHTML = '<p style="text-align:center; color:red;">عذراً، تعذر تحميل الورد حالياً.</p>';
-    }
-}
-
-// 2. تحديث دالة العرض عشان الزرار ينادي الدالة الجديدة
-function displayCurrentDayPlan() {
-    const savedData = localStorage.getItem('userKhatma');
-    const resultElement = document.getElementById('khatma-result');
-    
-    if (savedData && resultElement) {
-        const data = JSON.parse(savedData);
-        const startPage = (data.currentDay - 1) * data.pagesPerDay + 1;
-        let endPage = data.currentDay * data.pagesPerDay;
-        if (endPage > 604) endPage = 604;
-
-        resultElement.innerHTML = `
-            <div style="background: rgba(var(--accent-rgb), 0.1); padding: 15px; border-radius: 12px; border: 1px solid var(--accent); margin-top:20px; text-align: center;">
-                <h3 style="color: var(--accent); margin-bottom: 10px;">ورد اليوم (${data.currentDay} من ${data.totalDays})</h3>
-                <p>من صفحة <b>${startPage}</b> إلى <b>${endPage}</b></p>
-                
-                <button class="btn-next" onclick="goToKhatmaPages(${startPage}, ${endPage})" style="background: var(--accent); color: #000; width: 100%; margin-bottom: 10px; font-weight:bold;">
-                    📖 اقرأ ورد اليوم الآن
-                </button>
-                
-                <button class="btn-next" onclick="markNextDay()" style="background: none; border: 1px solid #555; color: #ccc; width: 100%;">
-                    خلصت الورد.. اليوم التالي ✅
-                </button>
-            </div>
-        `;
+        console.error("Error:", error);
+        quranDisplay.innerHTML = '<p style="text-align:center; color:red;">تأكد من رفع ملف quran-data.json على السيرفر (GitHub) ليعمل الجلب.</p>';
     }
 }
