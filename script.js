@@ -923,12 +923,6 @@ function confirmKhatmaPlan() {
     const totalPages = 604;
     const pagesPerDay = Math.ceil(totalPages / days);
 
-    const khatmaData = {
-        totalDays: days,
-        pagesPerDay: pagesPerDay,
-        currentDay: 1
-    };
-
     // حفظ البيانات الجديدة على نضافة
     const khatmaData = { totalDays: days, pagesPerDay: Math.ceil(604 / days), currentDay: 1 };
     localStorage.setItem('userKhatma', JSON.stringify(khatmaData));
