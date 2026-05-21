@@ -427,17 +427,18 @@ function prevZekr() {
     updateZekrUI();
 }
 
+// استبدل الدالة القديمة بهذه الدالة (لجعل العداد يصفر عند فتح الموقع)
 function updateZekrUI() {
     const currentZekr = currentAzkarList[zekrIndex];
     const zekrDisplay = document.getElementById('zekr-text');
-    const countBtn = document.getElementById('count-btn'); // تأكد إن ده الـ ID في الـ HTML
+    const countBtn = document.getElementById('count-btn'); 
 
     if (zekrDisplay) zekrDisplay.innerText = currentZekr;
 
     if (countBtn) {
-        // بنجيب القيمة المتخزنة باسم الذكر ده بالظبط
-        const savedCount = localStorage.getItem('tasbih_' + currentZekr) || 0;
-        countBtn.innerText = savedCount + " تسبيح";
+        // بدلاً من localStorage، بنحط 0 مباشرة
+        // وبكده كل ما تفتح الموقع، العداد هيبدأ من صفر
+        countBtn.innerText = "0 تسبيح"; 
     }
 }
 
@@ -518,20 +519,12 @@ function copyText(elementId, btn) {
 }
 
 // وظيفة العداد (التسبيح)
+// دالة الضغط على الزرار (بتزود على الشاشة فقط)
 function updateGeneralTasbih(btn) {
-    // 1. استخراج الرقم من النص (هياخد الـ 0 ويسيب كلمة تسبيح)
     let current = parseInt(btn.innerText) || 0;
+    btn.innerText = (current + 1) + " تسبيح";
     
-    // 2. زيادة الرقم
-    let newValue = current + 1;
-    
-    // 3. كتابة النص الجديد جوه الزرار
-    btn.innerText = newValue + " تسبيح";
-
-    // 4. (تم الحذف) السطر بتاع localStorage.setItem تم حذفه 
-    // عشان العداد ما يتحفظش ويصفر لما تقفل الموقع
-
-    // هزة بسيطة لو شغال من الموبايل
+    // هزة للموبايل
     if (navigator.vibrate) navigator.vibrate(50);
 }
 // وظيفة جلب مواقيت الصلاة
