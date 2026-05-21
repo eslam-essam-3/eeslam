@@ -893,25 +893,21 @@ function goToKhatmaJuz(juzNum) {
         }
     }
 }
+// دالة خفيفة جداً لا تسبب تهنيج
 async function prepareOfflineKhatma(days) {
     const quranDisplay = document.getElementById('quranContent');
     if (!quranDisplay) return;
     
-    quranDisplay.innerHTML = '<p style="text-align:center; color:#2ecc71;">⏳ جاري تحميل الختمة للأوفلاين.. لحظات يا هندسة</p>';
+    // بدلاً من التحميل، بنخزن إعدادات الختمة فقط
+    const totalPages = 604;
+    const pagesPerDay = Math.ceil(totalPages / days);
+    
+    localStorage.setItem('khatma_settings', JSON.stringify({
+        days: days,
+        pagesPerDay: pagesPerDay
+    }));
 
-    try {
-        let khatmaCache = {};
-        for (let p = 1; p <= 604; p++) {
-            const response = await fetch(`https://api.alquran.cloud/v1/page/${p}/quran-uthmani`);
-            const data = await response.json();
-            khatmaCache[p] = data.data;
-        }
-        // إضافة await أو التأكد من انتهاء الكتابة
-        localStorage.setItem('full_khatma_cache', JSON.stringify(khatmaCache));
-        quranDisplay.innerHTML = '<p style="text-align:center; color:#2ecc71;">✅ تم تحميل الختمة كاملة! يمكنك القراءة أوفلاين الآن.</p>';
-    } catch (e) {
-        quranDisplay.innerHTML = '<p style="color:red; text-align:center;">⚠️ حدث خطأ في التحميل، تأكد من الإنترنت.</p>';
-    }
+    quranDisplay.innerHTML = '<p style="text-align:center; color:#2ecc71;">✅ تم ضبط إعدادات الختمة! يمكنك الآن البدء بالقراءة.</p>';
 }
 // 1. دالة حساب الخطة وتخزينها (المعدلة لمنع التضارب)
 function confirmKhatmaPlan() {
@@ -976,16 +972,21 @@ function displayCurrentDayPlan() {
         `;
     }
 }
+// دالة عرض الورد (سريعة ولا تسبب تهنيج)
 async function goToKhatmaPages(startPage, endPage) {
     const quranDisplay = document.getElementById('quranContent');
     if (!quranDisplay) return;
 
-    quranDisplay.innerHTML = '<p style="text-align:center; color:#2ecc71;">⏳ جاري تحميل الورد..</p>';
+    // مسح مؤقت للذاكرة لضمان عدم وجود تضارب
+    localStorage.removeItem('current_page_data');
+
+    quranDisplay.innerHTML = '<p style="text-align:center; color:#2ecc71;">⏳ جاري تحضير الورد.. لحظات</p>';
 
     try {
         let html = "";
         let lastSurah = "";
 
+        // التحميل هنا مباشر من السيرفر، المتصفح ذكي جداً في عمل Cache لهذا النوع من الطلبات
         for (let p = startPage; p <= endPage; p++) {
             const response = await fetch(`https://api.alquran.cloud/v1/page/${p}/quran-uthmani`);
             const data = await response.json();
@@ -1004,9 +1005,11 @@ async function goToKhatmaPages(startPage, endPage) {
             });
             html += `</div></div>`;
         }
+        
         quranDisplay.innerHTML = html;
         quranDisplay.scrollIntoView({ behavior: 'smooth' });
+
     } catch (e) {
-        quranDisplay.innerHTML = '<p style="color:red; text-align:center;">⚠️ تأكد من الإنترنت.</p>';
+        quranDisplay.innerHTML = '<p style="color:red; text-align:center;">⚠️ تأكد من الإنترنت يا بطل.</p>';
     }
 }
