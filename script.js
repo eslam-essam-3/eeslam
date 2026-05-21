@@ -893,7 +893,7 @@ function goToKhatmaJuz(juzNum) {
         }
     }
 }
-// 1. دالة حساب الخطة وتخزينها (بدون localStorage.clear)
+// 1. دالة حساب الخطة وتخزينها (المعدلة لمنع التضارب)
 function confirmKhatmaPlan() {
     const daysInput = document.getElementById('khatmaDays');
     const days = parseInt(daysInput.value);
@@ -902,6 +902,9 @@ function confirmKhatmaPlan() {
         alert("يا ريت تكتب عدد أيام مظبوط يا بطل!");
         return;
     }
+
+    // أهم خطوة: مسح أي بقايا لختمة قديمة قبل تسجيل الجديدة
+    localStorage.removeItem('userKhatma');
 
     const totalPages = 604;
     const pagesPerDay = Math.ceil(totalPages / days);
@@ -912,7 +915,15 @@ function confirmKhatmaPlan() {
         currentDay: 1
     };
 
+    // حفظ البيانات الجديدة على نضافة
     localStorage.setItem('userKhatma', JSON.stringify(khatmaData));
+
+    // تنظيف واجهة العرض من أي ورد قديم كان معروض
+    const quranDisplay = document.getElementById('quranContent');
+    if (quranDisplay) quranDisplay.innerHTML = "";
+
+    alert("تم تفعيل نظام الختمة الجديد بنجاح!");
+    
     displayCurrentDayPlan(); 
 }
 
