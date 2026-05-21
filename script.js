@@ -976,36 +976,53 @@ function displayCurrentDayPlan() {
         `;
     }
 }
-function goToKhatmaPages(startPage, endPage) {
+async function goToKhatmaPages(startPage, endPage) {
     const quranDisplay = document.getElementById('quranContent');
-    const cachedKhatma = localStorage.getItem('full_khatma_cache');
+    if (!quranDisplay) return;
 
-    if (!cachedKhatma) {
-        quranDisplay.innerHTML = '<p style="color:red; text-align:center;">الختمة غير محملة. يرجى الانتظار حتى اكتمال التحميل.</p>';
+    // بننشئ مفتاح خاص للورد ده في الذاكرة
+    const cacheKey = `khatma_${startPage}_${endPage}`;
+    const cachedData = localStorage.getItem(cacheKey);
+
+    // لو الورد ده متحمل قبل كدة، اعرضه فوراً (أوفلاين)
+    if (cachedData) {
+        quranDisplay.innerHTML = cachedData;
+        quranDisplay.scrollIntoView({ behavior: 'smooth' });
         return;
     }
 
-    const fullData = JSON.parse(cachedKhatma);
-    let html = "";
-    let lastSurah = "";
+    // لو مش موجود، حمله
+    quranDisplay.innerHTML = '<p style="text-align:center; color:#2ecc71;">⏳ جاري تحضير وردك.. ثواني!</p>';
 
-    for (let p = startPage; p <= endPage; p++) {
-        const pageData = fullData[p];
-        if (!pageData) continue;
+    try {
+        let html = "";
+        let lastSurah = "";
 
-        html += `<div class="page-block" style="border: 1px solid #333; padding: 20px; margin-bottom: 20px; border-radius: 12px; background: rgba(255,255,255,0.02); direction:rtl;">
-                    <div style="text-align:center; color: #2ecc71; margin-bottom: 10px;">📄 صفحة ${p}</div>
-                    <div style="font-size:1.6rem; line-height:2.6; text-align:justify;">`;
+        for (let p = startPage; p <= endPage; p++) {
+            const response = await fetch(`https://api.alquran.cloud/v1/page/${p}/quran-uthmani`);
+            const data = await response.json();
+            const pageData = data.data;
 
-        pageData.ayahs.forEach(ayah => {
-            if (ayah.surah.name !== lastSurah) {
-                html += `<div style="text-align:center; color:#2ecc71; padding:10px; margin:20px 0; border:1px solid #2ecc71; border-radius:8px;">✨ ${ayah.surah.name} ✨</div>`;
-                lastSurah = ayah.surah.name;
-            }
-            html += ` ${ayah.text} <span style="color:#2ecc71; font-weight:bold;">(${ayah.numberInSurah})</span> `;
-        });
-        html += `</div></div>`;
+            html += `<div class="page-block" style="border: 1px solid #333; padding: 20px; margin-bottom: 20px; border-radius: 12px; background: rgba(255,255,255,0.02); direction:rtl;">
+                        <div style="text-align:center; color: #2ecc71; margin-bottom: 10px;">📄 صفحة ${p}</div>
+                        <div style="font-size:1.6rem; line-height:2.6; text-align:justify;">`;
+
+            pageData.ayahs.forEach(ayah => {
+                if (ayah.surah.name !== lastSurah) {
+                    html += `<div style="text-align:center; color:#2ecc71; padding:10px; margin:20px 0; border:1px solid #2ecc71; border-radius:8px;">✨ ${ayah.surah.name} ✨</div>`;
+                    lastSurah = ayah.surah.name;
+                }
+                html += ` ${ayah.text} <span style="color:#2ecc71; font-weight:bold;">(${ayah.numberInSurah})</span> `;
+            });
+            html += `</div></div>`;
+        }
+
+        // خزن الورد ده عشان المرة الجاية يفتح أوفلاين
+        localStorage.setItem(cacheKey, html);
+        quranDisplay.innerHTML = html;
+        quranDisplay.scrollIntoView({ behavior: 'smooth' });
+
+    } catch (e) {
+        quranDisplay.innerHTML = '<p style="color:red; text-align:center;">⚠️ تأكد من الاتصال بالإنترنت.</p>';
     }
-    quranDisplay.innerHTML = html;
-    quranDisplay.scrollIntoView({ behavior: 'smooth' });
 }
