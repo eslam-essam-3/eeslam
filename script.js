@@ -980,10 +980,7 @@ async function goToKhatmaPages(startPage, endPage) {
     const quranDisplay = document.getElementById('quranContent');
     if (!quranDisplay) return;
 
-    // 1. مسح الذاكرة القديمة فوراً عشان نفضي مساحة
-    localStorage.clear(); 
-
-    quranDisplay.innerHTML = '<p style="text-align:center; color:#2ecc71;">⏳ جاري تحميل وردك..</p>';
+    quranDisplay.innerHTML = '<p style="text-align:center; color:#2ecc71;">⏳ جاري تحميل الورد..</p>';
 
     try {
         let html = "";
@@ -1007,10 +1004,8 @@ async function goToKhatmaPages(startPage, endPage) {
             });
             html += `</div></div>`;
         }
-
         quranDisplay.innerHTML = html;
         quranDisplay.scrollIntoView({ behavior: 'smooth' });
-
     } catch (e) {
         quranDisplay.innerHTML = '<p style="color:red; text-align:center;">⚠️ تأكد من الإنترنت.</p>';
     }
