@@ -519,7 +519,7 @@ function copyText(elementId, btn) {
 
 // وظيفة العداد (التسبيح)
 function updateGeneralTasbih(btn) {
-    // 1. استخراج الرقم بس من النص (هياخد الـ 0 ويسيب كلمة تسبيح)
+    // 1. استخراج الرقم من النص (هياخد الـ 0 ويسيب كلمة تسبيح)
     let current = parseInt(btn.innerText) || 0;
     
     // 2. زيادة الرقم
@@ -528,8 +528,8 @@ function updateGeneralTasbih(btn) {
     // 3. كتابة النص الجديد جوه الزرار
     btn.innerText = newValue + " تسبيح";
 
-    // 4. (إضافة من عندي) حفظ الإجمالي عشان ميروحش لو قفلت الصفحة
-    localStorage.setItem('totalTasbih', (parseInt(localStorage.getItem('totalTasbih')) || 0) + 1);
+    // 4. (تم الحذف) السطر بتاع localStorage.setItem تم حذفه 
+    // عشان العداد ما يتحفظش ويصفر لما تقفل الموقع
 
     // هزة بسيطة لو شغال من الموبايل
     if (navigator.vibrate) navigator.vibrate(50);
