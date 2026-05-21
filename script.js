@@ -601,6 +601,13 @@ function displayPrayers(timings) {
 
 // تشغيل الوظيفة أول ما الموقع يفتح
 window.addEventListener('DOMContentLoaded', () => {
+    window.addEventListener('load', () => {
+    // لما الصفحة تحمل، امسح أي رقم قديم من الذاكرة
+    localStorage.removeItem('tasbih'); 
+    
+    // أو لو بتستخدم متغير عادي، هو هيبدأ من صفر لوحده بمجرد ما المتغير يتعرف
+    tasbihCount = 0; 
+});
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
             (position) => {
