@@ -893,6 +893,28 @@ function goToKhatmaJuz(juzNum) {
         }
     }
 }
+async function prepareOfflineKhatma(days) {
+    const quranDisplay = document.getElementById('quranContent');
+    if(!quranDisplay) return;
+    
+    quranDisplay.innerHTML = '<p style="text-align:center; color:#2ecc71;">⏳ جاري تحضير الختمة كاملة للأوفلاين (مطلوب إنترنت).. ثواني!</p>';
+
+    const totalPages = 604;
+    let khatmaCache = {};
+
+    try {
+        for (let p = 1; p <= totalPages; p++) {
+            const response = await fetch(`https://api.alquran.cloud/v1/page/${p}/quran-uthmani`);
+            const data = await response.json();
+            khatmaCache[p] = data.data;
+        }
+        localStorage.setItem('full_khatma_cache', JSON.stringify(khatmaCache));
+        quranDisplay.innerHTML = '<p style="text-align:center; color:#2ecc71;">✅ تم تحميل الختمة كاملة! يمكنك الآن القراءة أوفلاين.</p>';
+        displayCurrentDayPlan(); // تحديث الواجهة بعد التحميل
+    } catch (e) {
+        quranDisplay.innerHTML = '<p style="color:red; text-align:center;">خطأ في تحميل الختمة، تأكد من الإنترنت.</p>';
+    }
+}
 // 1. دالة حساب الخطة وتخزينها (المعدلة لمنع التضارب)
 function confirmKhatmaPlan() {
     const daysInput = document.getElementById('khatmaDays');
@@ -917,7 +939,8 @@ function confirmKhatmaPlan() {
 
     // حفظ البيانات الجديدة على نضافة
     localStorage.setItem('userKhatma', JSON.stringify(khatmaData));
-
+    // ضيف السطر ده هنا عشان يبدأ تحميل الختمة فوراً
+    prepareOfflineKhatma(days);
     // تنظيف واجهة العرض من أي ورد قديم كان معروض
     const quranDisplay = document.getElementById('quranContent');
     if (quranDisplay) quranDisplay.innerHTML = "";
@@ -955,49 +978,33 @@ function displayCurrentDayPlan() {
     }
 }
 async function goToKhatmaPages(startPage, endPage) {
-    const quranDisplay = document.getElementById('quranContent'); 
-    if (!quranDisplay) return;
+    const quranDisplay = document.getElementById('quranContent');
+    const cachedKhatma = localStorage.getItem('full_khatma_cache');
 
-    // رسالة انتظار شيك
-    quranDisplay.innerHTML = '<p style="text-align:center; color:#2ecc71; font-family:Cairo; padding:20px;">⏳ جاري تحضير ورد اليوم.. لحظات يا هندسة</p>';
-    
-    try {
-        let html = "";
-        let lastSurah = "";
-
-        // بنحمل الصفحات المطلوبة بس (وده السر في السرعة)
-        for (let p = startPage; p <= endPage; p++) {
-            const response = await fetch(`https://api.alquran.cloud/v1/page/${p}/quran-uthmani`);
-            const data = await response.json();
-            const pageData = data.data;
-
-            html += `
-                <div class="page-block" style="border: 1px solid #333; padding: 20px; margin-bottom: 20px; border-radius: 12px; background: rgba(255,255,255,0.02); direction:rtl;">
-                    <div style="text-align:center; font-size: 0.9rem; color: #2ecc71; margin-bottom: 15px; border-bottom: 1px solid #444; padding-bottom: 8px;">📄 صفحة ${p}</div>
-                    <div style="font-size:1.6rem; line-height:2.6; text-align:justify; font-family:'Amiri', serif;">`;
-
-            pageData.ayahs.forEach(ayah => {
-                // إضافة اسم السورة لو اتغيرت وسط الصفحة
-                if (ayah.surah.name !== lastSurah) {
-                    html += `
-                        <div style="text-align:center; background:linear-gradient(90deg, transparent, rgba(46, 204, 113, 0.15), transparent); color:#2ecc71; padding:10px; border-radius:8px; margin:20px 0; font-family:'Cairo', sans-serif; border-top:1px solid #2ecc71; border-bottom:1px solid #2ecc71; font-weight:bold;">
-                            ✨ ${ayah.surah.name} ✨
-                        </div>`;
-                    lastSurah = ayah.surah.name;
-                }
-                
-                // نص الآية مع التنسيق
-                html += ` ${ayah.text} <span style="color:#2ecc71; font-weight:bold;">(${ayah.numberInSurah})</span> `;
-            });
-
-            html += `</div></div>`;
-        }
-
-        quranDisplay.innerHTML = html;
-        quranDisplay.scrollIntoView({ behavior: 'smooth' });
-
-    } catch (error) {
-        console.error("Error:", error);
-        quranDisplay.innerHTML = '<p style="color:#ff7675; text-align:center; padding:20px;">⚠️ النت قطع أو السيرفر مهنج.. جرب تدوس على الزرار تاني .</p>';
+    if (!cachedKhatma) {
+        quranDisplay.innerHTML = '<p style="color:red;">الختمة غير محملة. يرجى الاتصال بالإنترنت أولاً.</p>';
+        return;
     }
+
+    const fullData = JSON.parse(cachedKhatma);
+    let html = "";
+    let lastSurah = "";
+
+    for (let p = startPage; p <= endPage; p++) {
+        const pageData = fullData[p];
+        html += `<div class="page-block" style="border: 1px solid #333; padding: 20px; margin-bottom: 20px; border-radius: 12px; background: rgba(255,255,255,0.02); direction:rtl;">
+                    <div style="text-align:center; color: #2ecc71; margin-bottom: 10px;">📄 صفحة ${p}</div>
+                    <div style="font-size:1.6rem; line-height:2.6; text-align:justify;">`;
+
+        pageData.ayahs.forEach(ayah => {
+            if (ayah.surah.name !== lastSurah) {
+                html += `<div style="text-align:center; color:#2ecc71; padding:10px; margin:20px 0; border:1px solid #2ecc71; border-radius:8px;">✨ ${ayah.surah.name} ✨</div>`;
+                lastSurah = ayah.surah.name;
+            }
+            html += ` ${ayah.text} <span style="color:#2ecc71; font-weight:bold;">(${ayah.numberInSurah})</span> `;
+        });
+        html += `</div></div>`;
+    }
+    quranDisplay.innerHTML = html;
+    quranDisplay.scrollIntoView({ behavior: 'smooth' });
 }
