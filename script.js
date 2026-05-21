@@ -456,61 +456,52 @@ async function initQuranAndJuz() {
     const display = document.getElementById('quranContent');
     if (!sSelect || !display) return;
 
-    // أسماء الـ 114 سورة بالترتيب عشان تظهر في القائمة فوراً أونلاين وأوفلاين بدون نت
-    const surahNames = [
-        "الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه","الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم","لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلم","الحاقة","المعارج","نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس","التكوير","الانفطار","المطففين","الانشقاق","البروج","الطارق","الأعلى","الغاشية","الفجر","البلد","الشمس","الليل","الضحى","الشرح","التين","العلق","القدر","البينة","الزلزلة","العاديات","القارعة","التكاثر","العصر","الهمزة","الفيل","قريش","الماعون","الكوثر","الكافرون","النصر","المسد","الإخلاص","الفلق","الناس"
-    ];
+    // أسماء السور
+    const allSurahs = ["الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه","الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم","لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلم","الحاقة","المعارج","نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس","التكوير","الانفطار","المطففين","الانشقاق","البروج","الطارق","الأعلى","الغاشية","الفجر","البلد","الشمس","الليل","الضحى","الشرح","التين","العلق","القدر","البينة","الزلزلة","العاديات","القارعة","التكاثر","العصر","الهمزة","الفيل","قريش","الماعون","الكوثر","الكافرون","النصر","المسد","الإخلاص","الفلق","الناس"];
 
-    // تعبئة القائمة بالـ 114 سورة فوراً
     sSelect.innerHTML = '<option value="">اختر السورة...</option>';
-    surahNames.forEach((name, index) => {
+    allSurahs.forEach((name, index) => {
         sSelect.add(new Option(`سورة ${name}`, index + 1));
     });
 
-    // عند اختيار السورة
     sSelect.onchange = async () => {
         const surahId = sSelect.value;
-        if (!surahId) {
-            display.innerText = "الرجاء اختيار سورة لعرض الآيات.";
+        if (!surahId) return;
+
+        // 1. فحص الذاكرة أولاً (هل السورة دي متخزنة قبل كده؟)
+        const cachedSurah = localStorage.getItem(`surah_${surahId}`);
+        if (cachedSurah) {
+            displaySurah(JSON.parse(cachedSurah), display);
             return;
         }
 
-        // 1. جلب السورة من الذاكرة المحلية (لو فتحتها قبل كده أوفلاين)
-        const localKey = `quran_surah_${surahId}`;
-        const savedSurah = localStorage.getItem(localKey);
-
-        if (savedSurah) {
-            const surahData = JSON.parse(savedSurah);
-            display.innerHTML = surahData.verses.map((text, i) => {
-                return `${text} <span class="verse-num" style="color: #2ecc71; font-weight: bold;">(${i + 1})</span>`;
-            }).join(' ');
-            return;
-        }
-
-        // 2. لو مش متسيفة، نجبها من السيرفر بالنت ونعرضها ونحفظها هي لوحدها
-        display.innerText = "جاري تحميل السورة بالتشكيل الحقيقي... ثواني";
+        // 2. لو مش موجودة، نحاول نحملها
+        display.innerHTML = '<p style="text-align:center; color:#2ecc71;">جاري التحميل...</p>';
+        
         try {
             const res = await fetch(`https://api.alquran.cloud/v1/surah/${surahId}/quran-uthmani`);
             const data = await res.json();
-            
             const surahData = {
                 name: data.data.name,
                 verses: data.data.ayahs.map(ayah => ayah.text)
             };
 
-            // حفظ السورة دي لوحدها في المتصفح عشان تشتغل أوفلاين بعد كده
-            localStorage.setItem(localKey, JSON.stringify(surahData));
-
-            // عرض الآيات
-            display.innerHTML = surahData.verses.map((text, i) => {
-                return `${text} <span class="verse-num" style="color: #2ecc71; font-weight: bold;">(${i + 1})</span>`;
-            }).join(' ');
+            // 3. حفظها في الذاكرة للأبد (عشان تفتح أوفلاين)
+            localStorage.setItem(`surah_${surahId}`, JSON.stringify(surahData));
+            displaySurah(surahData, display);
 
         } catch (err) {
-            display.innerHTML = '<p style="text-align:center; color:#ff7675;">هذه السورة غير محملة أوفلاين وتتطلب اتصالاً بالإنترنت لفتحها لأول مرة.</p>';
-            console.error(err);
+            display.innerHTML = '<p style="text-align:center; color:#ff7675;">عذراً، تحتاج للاتصال بالإنترنت لتحميل هذه السورة لأول مرة فقط.</p>';
         }
     };
+}
+
+// دالة مساعدة لعرض الآيات بشكل جميل
+function displaySurah(surahData, displayElement) {
+    displayElement.innerHTML = `<h2 style="text-align:center; color:#2ecc71;">${surahData.name}</h2>` + 
+        surahData.verses.map((text, i) => {
+            return `<span style="font-size: 1.3rem; line-height: 2.2;"> ${text} <b style="color:#2ecc71;">(${i + 1})</b> </span>`;
+        }).join(' ');
 }
 // وظيفة النسخ الذكية
 function copyText(elementId, btn) {
@@ -977,31 +968,31 @@ async function goToKhatmaPages(startPage, endPage) {
     const quranDisplay = document.getElementById('quranContent');
     if (!quranDisplay) return;
 
-    // مسح مؤقت للذاكرة لضمان عدم وجود تضارب
-    localStorage.removeItem('current_page_data');
+    // تم حذف شرط التحقق من الإنترنت navigator.onLine لعدم ظهور رسائل للمستخدم
 
-    quranDisplay.innerHTML = '<p style="text-align:center; color:#2ecc71;">⏳ جاري تحضير الورد.. لحظات</p>';
+    quranDisplay.innerHTML = '<p style="text-align:center; color:#2ecc71;">⏳ جاري تحميل الورد..</p>';
 
     try {
         let html = "";
         let lastSurah = "";
 
-        // التحميل هنا مباشر من السيرفر، المتصفح ذكي جداً في عمل Cache لهذا النوع من الطلبات
         for (let p = startPage; p <= endPage; p++) {
+            // محاولة جلب الصفحة (المتصفح سيحاول الاتصال، إذا لم يوجد نت سيذهب مباشرة للـ catch)
             const response = await fetch(`https://api.alquran.cloud/v1/page/${p}/quran-uthmani`);
             const data = await response.json();
             const pageData = data.data;
 
-            html += `<div class="page-block" style="border: 1px solid #333; padding: 20px; margin-bottom: 20px; border-radius: 12px; background: rgba(255,255,255,0.02); direction:rtl;">
-                        <div style="text-align:center; color: #2ecc71; margin-bottom: 10px;">📄 صفحة ${p}</div>
-                        <div style="font-size:1.6rem; line-height:2.6; text-align:justify;">`;
+            // التنسيق المريح للعين
+            html += `<div class="page-block" style="border-bottom: 1px solid #444; padding: 15px 0; margin-bottom: 10px; direction:rtl;">
+                        <div style="text-align:center; color: #2ecc71; font-size: 0.9rem; margin-bottom: 10px;">📄 صفحة ${p}</div>
+                        <div style="font-size: 1.3rem; line-height: 2.2; text-align: justify; color: #eee;">`;
 
             pageData.ayahs.forEach(ayah => {
                 if (ayah.surah.name !== lastSurah) {
-                    html += `<div style="text-align:center; color:#2ecc71; padding:10px; margin:20px 0; border:1px solid #2ecc71; border-radius:8px;">✨ ${ayah.surah.name} ✨</div>`;
+                    html += `<div style="text-align:center; color:#2ecc71; font-weight:bold; margin: 15px 0; border: 1px solid #2ecc71; padding: 5px; border-radius: 5px;">✨ ${ayah.surah.name} ✨</div>`;
                     lastSurah = ayah.surah.name;
                 }
-                html += ` ${ayah.text} <span style="color:#2ecc71; font-weight:bold;">(${ayah.numberInSurah})</span> `;
+                html += ` ${ayah.text} <span style="color:#2ecc71; font-size: 0.8rem; margin: 0 5px;">(${ayah.numberInSurah})</span> `;
             });
             html += `</div></div>`;
         }
@@ -1010,6 +1001,7 @@ async function goToKhatmaPages(startPage, endPage) {
         quranDisplay.scrollIntoView({ behavior: 'smooth' });
 
     } catch (e) {
-        quranDisplay.innerHTML = '<p style="color:red; text-align:center;">⚠️ تأكد من الإنترنت يا بطل.</p>';
+        // في حال فشل التحميل لأي سبب (إنترنت مقطوع أو غيره)، يظهر تنبيه بسيط
+        quranDisplay.innerHTML = '<p style="color:red; text-align:center;">⚠️ تعذر تحميل الورد، يرجى التأكد من اتصال الإنترنت.</p>';
     }
 }
