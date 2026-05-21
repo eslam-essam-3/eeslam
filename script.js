@@ -998,6 +998,6 @@ async function goToKhatmaPages(startPage, endPage) {
 
     } catch (error) {
         console.error("Error:", error);
-        quranDisplay.innerHTML = '<p style="color:#ff7675; text-align:center; padding:20px;">⚠️ النت قطع أو السيرفر مهنج.. جرب تدوس على الزرار تاني يا هندسة.</p>';
+        quranDisplay.innerHTML = '<p style="color:#ff7675; text-align:center; padding:20px;">⚠️ النت قطع أو السيرفر مهنج.. جرب تدوس على الزرار تاني .</p>';
     }
 }
