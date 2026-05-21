@@ -947,19 +947,21 @@ async function goToKhatmaPages(startPage, endPage) {
     const quranDisplay = document.getElementById('quranContent'); 
     if (!quranDisplay) return;
 
-    quranDisplay.innerHTML = '<p style="text-align:center; color:var(--accent);">جاري تحميل وردك من المصحف...</p>';
+    quranDisplay.innerHTML = '<p style="text-align:center; color:var(--accent);">جاري تحميل وردك بعناية...</p>';
     
     try {
-        // بننادي على API المصحف أونلاين بدل الملف
         const response = await fetch('https://api.alquran.cloud/v1/quran/quran-uthmani');
         const data = await response.json();
         const allSurahs = data.data.surahs;
 
-        // تجميع كل الآيات في مصفوفة واحدة عشان نعرف نفلتر بالصفحات
         let allVerses = [];
+        // هنا بنمر على السور ونضيف اسم السورة لكل آية عشان نعرف نميزها
         allSurahs.forEach(surah => {
             surah.ayahs.forEach(ayah => {
-                allVerses.push(ayah);
+                allVerses.push({
+                    ...ayah,
+                    surahName: surah.name // حفظ اسم السورة مع كل آية
+                });
             });
         });
 
@@ -967,22 +969,34 @@ async function goToKhatmaPages(startPage, endPage) {
 
         if (khatmaVerses.length > 0) {
             let html = "";
+            let lastSurah = ""; // متغير عشان نراقب تغير السورة
+
             for (let p = startPage; p <= endPage; p++) {
                 const pageVerses = khatmaVerses.filter(v => v.page === p);
                 if (pageVerses.length > 0) {
-                    html += `
-                        <div class="page-block" style="border: 1px solid #333; padding: 20px; margin-bottom: 20px; border-radius: 10px; background: rgba(255,255,255,0.02); direction:rtl;">
-                            <div style="text-align:center; font-size: 0.8rem; color: var(--accent); margin-bottom: 10px; border-bottom: 1px solid #444; padding-bottom: 5px;">📄 صفحة ${p}</div>
-                            <div style="font-size:1.6rem; line-height:2.5; text-align:justify;">
-                                ${pageVerses.map(v => `${v.text} <span style="color:var(--accent); font-size:1.1rem;">(${v.numberInSurah})</span>`).join(' ')}
-                            </div>
-                        </div>`;
+                    html += `<div class="page-block" style="border: 1px solid #333; padding: 20px; margin-bottom: 20px; border-radius: 10px; background: rgba(255,255,255,0.02); direction:rtl;">
+                                <div style="text-align:center; font-size: 0.8rem; color: var(--accent); margin-bottom: 10px; border-bottom: 1px solid #444; padding-bottom: 5px;">📄 صفحة ${p}</div>
+                                <div style="font-size:1.6rem; line-height:2.5; text-align:justify;">`;
+
+                    pageVerses.forEach(v => {
+                        // لو اسم السورة اتغير، يطبع عنوان السورة الجديدة
+                        if (v.surahName !== lastSurah) {
+                            html += `<div style="text-align:center; background:rgba(46, 204, 113, 0.1); color:#2ecc71; padding:10px; border-radius:8px; margin:20px 0; font-family:'Cairo', sans-serif; border:1px dashed #2ecc71;">
+                                        ✨ ${v.surahName} ✨
+                                     </div>`;
+                            lastSurah = v.surahName;
+                        }
+                        
+                        html += ` ${v.text} <span style="color:var(--accent); font-size:1.1rem; font-weight:bold;">(${v.numberInSurah})</span> `;
+                    });
+
+                    html += `</div></div>`;
                 }
             }
             quranDisplay.innerHTML = html;
             quranDisplay.scrollIntoView({ behavior: 'smooth' });
         }
     } catch (error) {
-        quranDisplay.innerHTML = '<p style="color:red; text-align:center;">خطأ في الاتصال.. تأكد من وجود إنترنت</p>';
+        quranDisplay.innerHTML = '<p style="color:red; text-align:center;">حدث خطأ أثناء تحميل الورد، حاول مرة أخرى.</p>';
     }
 }
