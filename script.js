@@ -858,38 +858,6 @@ function confirmKhatmaPlan() {
     localStorage.setItem('userKhatma', JSON.stringify(khatmaData));
     displayCurrentDayPlan(); // اظهر الورد فوراً بعد التأكيد
 }
-// 1. دالة عرض خطة الختمة (المحدثة)
-function displayCurrentDayPlan() {
-    const savedData = localStorage.getItem('userKhatma');
-    const resultElement = document.getElementById('khatma-result');
-    
-    if (savedData && resultElement) {
-        const data = JSON.parse(savedData);
-        
-        // حساب الصفحات
-        const startPage = (data.currentDay - 1) * data.pagesPerDay + 1;
-        let endPage = data.currentDay * data.pagesPerDay;
-        if (endPage > 604) endPage = 604;
-
-        // حساب الجزء (كل جزء 20 صفحة)
-        const currentJuz = Math.ceil(startPage / 20);
-
-        resultElement.innerHTML = `
-            <div style="background: rgba(var(--accent-rgb), 0.1); padding: 15px; border-radius: 12px; border: 1px solid var(--accent); margin-top:20px; text-align: center;">
-                <h3 style="color: var(--accent); margin-bottom: 10px;">ورد اليوم (${data.currentDay} من ${data.totalDays})</h3>
-                <p style="margin-bottom: 15px;">من صفحة <b>${startPage}</b> إلى <b>${endPage}</b></p>
-                
-                <button class="btn-next" onclick="goToKhatmaJuz(${currentJuz})" style="background: var(--accent); color: #000; width: 100%; margin-bottom: 10px; cursor: pointer;">
-                    📖 افتح الورد في المصحف
-                </button>
-                
-                <button class="btn-next" onclick="markNextDay()" style="background: none; border: 1px solid #555; color: #ccc; width: 100%; cursor: pointer;">
-                    انتقال لليوم التالي (${data.currentDay + 1}) ✅
-                </button>
-            </div>
-        `;
-    }
-}
 
 // 2. دالة الانتقال لليوم التالي (تصليح العطل)
 function markNextDay() {
@@ -975,17 +943,26 @@ function displayCurrentDayPlan() {
         `;
     }
 }
-
-// 3. دالة جلب الآيات وعرضها "صفحة صفحة"
 async function goToKhatmaPages(startPage, endPage) {
     const quranDisplay = document.getElementById('quranContent'); 
     if (!quranDisplay) return;
 
-    quranDisplay.innerHTML = '<p style="text-align:center; color:var(--accent);">جاري ترتيب صفحات وردك...</p>';
+    quranDisplay.innerHTML = '<p style="text-align:center; color:var(--accent);">جاري تحميل وردك من المصحف...</p>';
     
     try {
-        const response = await fetch('quran-data.json'); 
-        const allVerses = await response.json();
+        // بننادي على API المصحف أونلاين بدل الملف
+        const response = await fetch('https://api.alquran.cloud/v1/quran/quran-uthmani');
+        const data = await response.json();
+        const allSurahs = data.data.surahs;
+
+        // تجميع كل الآيات في مصفوفة واحدة عشان نعرف نفلتر بالصفحات
+        let allVerses = [];
+        allSurahs.forEach(surah => {
+            surah.ayahs.forEach(ayah => {
+                allVerses.push(ayah);
+            });
+        });
+
         const khatmaVerses = allVerses.filter(v => v.page >= startPage && v.page <= endPage);
 
         if (khatmaVerses.length > 0) {
@@ -997,7 +974,7 @@ async function goToKhatmaPages(startPage, endPage) {
                         <div class="page-block" style="border: 1px solid #333; padding: 20px; margin-bottom: 20px; border-radius: 10px; background: rgba(255,255,255,0.02); direction:rtl;">
                             <div style="text-align:center; font-size: 0.8rem; color: var(--accent); margin-bottom: 10px; border-bottom: 1px solid #444; padding-bottom: 5px;">📄 صفحة ${p}</div>
                             <div style="font-size:1.6rem; line-height:2.5; text-align:justify;">
-                                ${pageVerses.map(v => `${v.text} <span style="color:var(--accent); font-size:1.1rem;">(${v.verse_number})</span>`).join(' ')}
+                                ${pageVerses.map(v => `${v.text} <span style="color:var(--accent); font-size:1.1rem;">(${v.numberInSurah})</span>`).join(' ')}
                             </div>
                         </div>`;
                 }
@@ -1006,24 +983,6 @@ async function goToKhatmaPages(startPage, endPage) {
             quranDisplay.scrollIntoView({ behavior: 'smooth' });
         }
     } catch (error) {
-        quranDisplay.innerHTML = '<p style="color:red; text-align:center;">ارفع ملف quran-data.json على GitHub</p>';
-    }
-}
-
-// 4. دالة الانتقال لليوم التالي وحفظ التقدم
-function markNextDay() {
-    let savedData = localStorage.getItem('userKhatma');
-    if (savedData) {
-        let data = JSON.parse(savedData);
-        if (data.currentDay < data.totalDays) {
-            data.currentDay += 1;
-            localStorage.setItem('userKhatma', JSON.stringify(data));
-            displayCurrentDayPlan();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        } else {
-            alert("ما شاء الله! ختمت المصحف بنجاح 🎉");
-            localStorage.removeItem('userKhatma');
-            location.reload();
-        }
+        quranDisplay.innerHTML = '<p style="color:red; text-align:center;">خطأ في الاتصال.. تأكد من وجود إنترنت</p>';
     }
 }
