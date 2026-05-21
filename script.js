@@ -895,24 +895,22 @@ function goToKhatmaJuz(juzNum) {
 }
 async function prepareOfflineKhatma(days) {
     const quranDisplay = document.getElementById('quranContent');
-    if(!quranDisplay) return;
+    if (!quranDisplay) return;
     
-    quranDisplay.innerHTML = '<p style="text-align:center; color:#2ecc71;">⏳ جاري تحضير الختمة كاملة للأوفلاين (مطلوب إنترنت).. ثواني!</p>';
-
-    const totalPages = 604;
-    let khatmaCache = {};
+    quranDisplay.innerHTML = '<p style="text-align:center; color:#2ecc71;">⏳ جاري تحميل الختمة للأوفلاين.. لحظات يا هندسة</p>';
 
     try {
-        for (let p = 1; p <= totalPages; p++) {
+        let khatmaCache = {};
+        for (let p = 1; p <= 604; p++) {
             const response = await fetch(`https://api.alquran.cloud/v1/page/${p}/quran-uthmani`);
             const data = await response.json();
             khatmaCache[p] = data.data;
         }
+        // إضافة await أو التأكد من انتهاء الكتابة
         localStorage.setItem('full_khatma_cache', JSON.stringify(khatmaCache));
-        quranDisplay.innerHTML = '<p style="text-align:center; color:#2ecc71;">✅ تم تحميل الختمة كاملة! يمكنك الآن القراءة أوفلاين.</p>';
-        displayCurrentDayPlan(); // تحديث الواجهة بعد التحميل
+        quranDisplay.innerHTML = '<p style="text-align:center; color:#2ecc71;">✅ تم تحميل الختمة كاملة! يمكنك القراءة أوفلاين الآن.</p>';
     } catch (e) {
-        quranDisplay.innerHTML = '<p style="color:red; text-align:center;">خطأ في تحميل الختمة، تأكد من الإنترنت.</p>';
+        quranDisplay.innerHTML = '<p style="color:red; text-align:center;">⚠️ حدث خطأ في التحميل، تأكد من الإنترنت.</p>';
     }
 }
 // 1. دالة حساب الخطة وتخزينها (المعدلة لمنع التضارب)
@@ -938,6 +936,7 @@ function confirmKhatmaPlan() {
     };
 
     // حفظ البيانات الجديدة على نضافة
+    const khatmaData = { totalDays: days, pagesPerDay: Math.ceil(604 / days), currentDay: 1 };
     localStorage.setItem('userKhatma', JSON.stringify(khatmaData));
     // ضيف السطر ده هنا عشان يبدأ تحميل الختمة فوراً
     prepareOfflineKhatma(days);
@@ -977,12 +976,12 @@ function displayCurrentDayPlan() {
         `;
     }
 }
-async function goToKhatmaPages(startPage, endPage) {
+function goToKhatmaPages(startPage, endPage) {
     const quranDisplay = document.getElementById('quranContent');
     const cachedKhatma = localStorage.getItem('full_khatma_cache');
 
     if (!cachedKhatma) {
-        quranDisplay.innerHTML = '<p style="color:red;">الختمة غير محملة. يرجى الاتصال بالإنترنت أولاً.</p>';
+        quranDisplay.innerHTML = '<p style="color:red; text-align:center;">الختمة غير محملة. يرجى الانتظار حتى اكتمال التحميل.</p>';
         return;
     }
 
@@ -992,6 +991,8 @@ async function goToKhatmaPages(startPage, endPage) {
 
     for (let p = startPage; p <= endPage; p++) {
         const pageData = fullData[p];
+        if (!pageData) continue;
+
         html += `<div class="page-block" style="border: 1px solid #333; padding: 20px; margin-bottom: 20px; border-radius: 12px; background: rgba(255,255,255,0.02); direction:rtl;">
                     <div style="text-align:center; color: #2ecc71; margin-bottom: 10px;">📄 صفحة ${p}</div>
                     <div style="font-size:1.6rem; line-height:2.6; text-align:justify;">`;
