@@ -893,26 +893,7 @@ function goToKhatmaJuz(juzNum) {
         }
     }
 }
-async function prepareOfflineKhatma(days) {
-    const quranDisplay = document.getElementById('quranContent');
-    if (!quranDisplay) return;
-    
-    quranDisplay.innerHTML = '<p style="text-align:center; color:#2ecc71;">⏳ جاري تحميل الختمة للأوفلاين.. لحظات يا هندسة</p>';
 
-    try {
-        let khatmaCache = {};
-        for (let p = 1; p <= 604; p++) {
-            const response = await fetch(`https://api.alquran.cloud/v1/page/${p}/quran-uthmani`);
-            const data = await response.json();
-            khatmaCache[p] = data.data;
-        }
-        // إضافة await أو التأكد من انتهاء الكتابة
-        localStorage.setItem('full_khatma_cache', JSON.stringify(khatmaCache));
-        quranDisplay.innerHTML = '<p style="text-align:center; color:#2ecc71;">✅ تم تحميل الختمة كاملة! يمكنك القراءة أوفلاين الآن.</p>';
-    } catch (e) {
-        quranDisplay.innerHTML = '<p style="color:red; text-align:center;">⚠️ حدث خطأ في التحميل، تأكد من الإنترنت.</p>';
-    }
-}
 // 1. دالة حساب الخطة وتخزينها (المعدلة لمنع التضارب)
 function confirmKhatmaPlan() {
     const daysInput = document.getElementById('khatmaDays');
