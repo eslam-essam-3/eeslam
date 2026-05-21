@@ -947,34 +947,36 @@ async function goToKhatmaPages(startPage, endPage) {
     const quranDisplay = document.getElementById('quranContent'); 
     if (!quranDisplay) return;
 
-    quranDisplay.innerHTML = '<p style="text-align:center; color:var(--accent); font-family:Cairo;">⏳ جاري تحضير وردك... ثواني يا هندسة</p>';
+    // رسالة انتظار شيك
+    quranDisplay.innerHTML = '<p style="text-align:center; color:#2ecc71; font-family:Cairo; padding:20px;">⏳ جاري تحضير ورد اليوم.. لحظات يا هندسة</p>';
     
     try {
         let html = "";
         let lastSurah = "";
 
-        // بنلف على الصفحات المطلوبة واحدة واحدة عشان نخفف الحمل
+        // بنحمل الصفحات المطلوبة بس (وده السر في السرعة)
         for (let p = startPage; p <= endPage; p++) {
-            // بننادي API الصفحة الواحدة (ده أسرع بكتير ومبيخنقش المتصفح)
             const response = await fetch(`https://api.alquran.cloud/v1/page/${p}/quran-uthmani`);
             const data = await response.json();
             const pageData = data.data;
 
-            html += `<div class="page-block" style="border: 1px solid #333; padding: 20px; margin-bottom: 20px; border-radius: 12px; background: rgba(255,255,255,0.02); direction:rtl; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-                        <div style="text-align:center; font-size: 0.85rem; color: #2ecc71; margin-bottom: 15px; border-bottom: 1px solid #444; padding-bottom: 8px; font-weight:bold;">📄 صفحة ${p}</div>
-                        <div style="font-size:1.6rem; line-height:2.6; text-align:justify; font-family:'Amiri', serif;">`;
+            html += `
+                <div class="page-block" style="border: 1px solid #333; padding: 20px; margin-bottom: 20px; border-radius: 12px; background: rgba(255,255,255,0.02); direction:rtl;">
+                    <div style="text-align:center; font-size: 0.9rem; color: #2ecc71; margin-bottom: 15px; border-bottom: 1px solid #444; padding-bottom: 8px;">📄 صفحة ${p}</div>
+                    <div style="font-size:1.6rem; line-height:2.6; text-align:justify; font-family:'Amiri', serif;">`;
 
             pageData.ayahs.forEach(ayah => {
-                // لو السورة اتغيرت أو بدأت سورة جديدة في نفس الصفحة
+                // إضافة اسم السورة لو اتغيرت وسط الصفحة
                 if (ayah.surah.name !== lastSurah) {
-                    html += `<div style="text-align:center; background:linear-gradient(90deg, transparent, rgba(46, 204, 113, 0.2), transparent); color:#2ecc71; padding:12px; border-radius:8px; margin:25px 0; font-family:'Cairo', sans-serif; border-top:1px solid #2ecc71; border-bottom:1px solid #2ecc71; font-weight:bold; letter-spacing:1px;">
-                                ✨ ${ayah.surah.name} ✨
-                             </div>`;
+                    html += `
+                        <div style="text-align:center; background:linear-gradient(90deg, transparent, rgba(46, 204, 113, 0.15), transparent); color:#2ecc71; padding:10px; border-radius:8px; margin:20px 0; font-family:'Cairo', sans-serif; border-top:1px solid #2ecc71; border-bottom:1px solid #2ecc71; font-weight:bold;">
+                            ✨ ${ayah.surah.name} ✨
+                        </div>`;
                     lastSurah = ayah.surah.name;
                 }
                 
-                // إضافة نص الآية مع رقمها
-                html += ` ${ayah.text} <span style="color:#2ecc71; font-size:1.1rem; font-weight:bold; margin: 0 4px;">(${ayah.numberInSurah})</span> `;
+                // نص الآية مع التنسيق
+                html += ` ${ayah.text} <span style="color:#2ecc71; font-weight:bold;">(${ayah.numberInSurah})</span> `;
             });
 
             html += `</div></div>`;
@@ -984,7 +986,7 @@ async function goToKhatmaPages(startPage, endPage) {
         quranDisplay.scrollIntoView({ behavior: 'smooth' });
 
     } catch (error) {
-        console.error(error);
-        quranDisplay.innerHTML = '<p style="color:#ff7675; text-align:center; font-family:Cairo;">⚠️ حصل مشكلة في التحميل.. اتأكد إن النت شغال ودوس "اقرأ ورد اليوم" تاني.</p>';
+        console.error("Error:", error);
+        quranDisplay.innerHTML = '<p style="color:#ff7675; text-align:center; padding:20px;">⚠️ النت قطع أو السيرفر مهنج.. جرب تدوس على الزرار تاني يا هندسة.</p>';
     }
 }
