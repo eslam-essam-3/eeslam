@@ -893,7 +893,26 @@ function goToKhatmaJuz(juzNum) {
         }
     }
 }
+async function prepareOfflineKhatma(days) {
+    const quranDisplay = document.getElementById('quranContent');
+    if (!quranDisplay) return;
+    
+    quranDisplay.innerHTML = '<p style="text-align:center; color:#2ecc71;">⏳ جاري تحميل الختمة للأوفلاين.. لحظات يا هندسة</p>';
 
+    try {
+        let khatmaCache = {};
+        for (let p = 1; p <= 604; p++) {
+            const response = await fetch(`https://api.alquran.cloud/v1/page/${p}/quran-uthmani`);
+            const data = await response.json();
+            khatmaCache[p] = data.data;
+        }
+        // إضافة await أو التأكد من انتهاء الكتابة
+        localStorage.setItem('full_khatma_cache', JSON.stringify(khatmaCache));
+        quranDisplay.innerHTML = '<p style="text-align:center; color:#2ecc71;">✅ تم تحميل الختمة كاملة! يمكنك القراءة أوفلاين الآن.</p>';
+    } catch (e) {
+        quranDisplay.innerHTML = '<p style="color:red; text-align:center;">⚠️ حدث خطأ في التحميل، تأكد من الإنترنت.</p>';
+    }
+}
 // 1. دالة حساب الخطة وتخزينها (المعدلة لمنع التضارب)
 function confirmKhatmaPlan() {
     const daysInput = document.getElementById('khatmaDays');
@@ -961,23 +980,15 @@ async function goToKhatmaPages(startPage, endPage) {
     const quranDisplay = document.getElementById('quranContent');
     if (!quranDisplay) return;
 
-    // مفتاح تخزين للورد المحدد فقط (يمنع امتلاء الذاكرة)
-    const cacheKey = `khatma_page_${startPage}_to_${endPage}`;
-    const cachedData = localStorage.getItem(cacheKey);
+    // 1. مسح الذاكرة القديمة فوراً عشان نفضي مساحة
+    localStorage.clear(); 
 
-    if (cachedData) {
-        quranDisplay.innerHTML = cachedData;
-        quranDisplay.scrollIntoView({ behavior: 'smooth' });
-        return;
-    }
-
-    quranDisplay.innerHTML = '<p style="text-align:center; color:#2ecc71;">⏳ جاري تحضير الورد.. (تأكد من الإنترنت للمرة الأولى)</p>';
+    quranDisplay.innerHTML = '<p style="text-align:center; color:#2ecc71;">⏳ جاري تحميل وردك..</p>';
 
     try {
         let html = "";
         let lastSurah = "";
 
-        // تحميل الصفحات المطلوبة فقط (سريع جداً)
         for (let p = startPage; p <= endPage; p++) {
             const response = await fetch(`https://api.alquran.cloud/v1/page/${p}/quran-uthmani`);
             const data = await response.json();
@@ -997,11 +1008,10 @@ async function goToKhatmaPages(startPage, endPage) {
             html += `</div></div>`;
         }
 
-        localStorage.setItem(cacheKey, html);
         quranDisplay.innerHTML = html;
         quranDisplay.scrollIntoView({ behavior: 'smooth' });
 
     } catch (e) {
-        quranDisplay.innerHTML = '<p style="color:red; text-align:center;">⚠️ تعذر التحميل، تأكد من اتصال الإنترنت.</p>';
+        quranDisplay.innerHTML = '<p style="color:red; text-align:center;">⚠️ تأكد من الإنترنت.</p>';
     }
 }
